@@ -83,6 +83,7 @@ static void list_articles(PGconn *conn) {
   char buf[256];
   int selection;
   char topic[64];
+  char id[8];
 
   const char *ParamValues[1];
 
@@ -100,7 +101,7 @@ static void list_articles(PGconn *conn) {
   for (int i=0; i<nrows; i++)
     printf("%d) %s\n", i, PQgetvalue(res, i, 0));
 
-  // Get topic selection
+  // Prompt user to select topic
   printf("\nSelect a topic to view articles: ");
 
   if (read_input(buf, sizeof(buf))) {
@@ -114,8 +115,9 @@ static void list_articles(PGconn *conn) {
 
   ParamValues[0] = topic;
 
-  // Print articles of selection
-  char *command = "SELECT id, title, author, source FROM articles WHERE topic=$1";
+  // List articles of selection
+  char *command = "SELECT id, title, author, source "
+    "FROM articles WHERE topic=$1 AND NOT is_read";
 
   res = PQexecParams(conn, command, 1, NULL, ParamValues, NULL, NULL, 0);
   if (PQresultStatus(res) != PGRES_TUPLES_OK) {
@@ -141,16 +143,35 @@ static void list_articles(PGconn *conn) {
     printf("\n");
   }
 
+  // Prompt user to select article
   printf("\nSelect article to read: ");
   if (read_input(buf, sizeof(buf)))
     if (EOF == sscanf(buf, "%d", &selection))
       fprintf(stderr, "Invalid selection...\n");
   
+  // List article source
   char *source = PQgetvalue(res, selection, 3);
   if (strlen(source))
-    printf("source: %s\n", source);
+    printf("Source: %s\n", source);
   else
     printf("No source listed\n");
+
+  // Prompt user to mark as read
+  printf("\nMark article as read? ");
+  if (read_input(buf, sizeof(buf))) {
+    if (strncmp(buf, "y", 1) == 0) {
+      snprintf(id, sizeof(id), PQgetvalue(res, selection, 0));
+      ParamValues[0] = id;
+      PQclear(res);
+      char *command = "UPDATE articles SET is_read = true WHERE id=$1";
+      res = PQexecParams(conn, command, 1, NULL, ParamValues, NULL, NULL, 0);
+      if (PQresultStatus(res) != PGRES_COMMAND_OK) {
+        fprintf(stderr, "Unable to mark as read\n");
+        exit_nicely(conn);
+      }
+      printf("Marked as read...\n");
+    }
+  }
 
   PQclear(res);
 
