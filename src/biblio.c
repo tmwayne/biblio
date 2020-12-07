@@ -17,6 +17,7 @@ char *read_input(char *, int);
 static void exit_nicely(PGconn *);
 static void list_articles(PGconn *);
 static void add_article(PGconn *);
+static void export_articles(PGconn *);
 
 int main(int argc, char **argv) {
 
@@ -47,6 +48,8 @@ int main(int argc, char **argv) {
       list_articles(conn);
     else if (0 == strncmp(command, "add", sizeof("add")))
       add_article(conn);
+    else if (0 == strncmp(command, "export", sizeof("export")))
+      export_articles(conn);
     else
       fprintf(stderr, "biblio: '%s' is not a biblio command.\n"
         "See 'biblio --help'\n", command);
@@ -211,5 +214,49 @@ static void add_article(PGconn *conn) {
       exit_nicely(conn);
     } else
       printf("Added article to library...\n");
+
+    PQclear(res);
   
 }
+
+void export_articles(PGconn *conn) {
+  
+  PGresult *res;
+
+  res = PQexec(conn, "SELECT COUNT(*) FROM articles");
+  if (PQresultStatus(res) != PGRES_TUPLES_OK) {
+    fprintf(stderr, "Unable to export data\n");
+    exit_nicely(conn);
+  }
+
+  int nrows = atoi(PQgetvalue(res, 0, 0));
+
+  char *command = "COPY articles TO STDOUT with (FORMAT CSV, DELIMITER '|', HEADER)";
+  res = PQexec(conn, command);
+  if (PQresultStatus(res) != PGRES_COPY_OUT) {
+    fprintf(stderr, "Unable to export data\n");
+    exit_nicely(conn);
+  }
+
+  char *output[nrows + 1]; // add 1 to include header row
+  int i, exit_code;
+  for (i=0; (exit_code = PQgetCopyData(conn, &output[i], 0)) > 0; i++) ;
+  output[i] = 0;
+
+  // exit_code of -1 means COPY is finished
+  // exit_code of -2 means an error occurred
+  if (exit_code == -2) {
+    fprintf(stderr, "Error occurred exporting data\n");
+    exit_nicely(conn);
+  }
+
+  for (int i=0; output[i]; i++) {
+    fprintf(stdout, "%s", output[i]);
+    PQfreemem(output[i]);
+  }
+
+  PQclear(res);
+
+}
+
+
