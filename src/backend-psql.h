@@ -16,8 +16,8 @@
 #define BACKEND_INCLUDED
 
 typedef struct backend {
-  DataFrame *(*get_topics)(void *args);
-  DataFrame *(*get_articles)(char *topic, void *args);
+  Dataframe (*get_topics)(void *args);
+  Dataframe (*get_articles)(char *topic, void *args);
   void (*mark_article)(int article_id, void *args);
   void (*add_article)(char *topic, char *title, char *author,
     char *source, void *args);
@@ -30,8 +30,8 @@ void Backend_free(Backend *);
 
 #endif
 
-DataFrame *psql_get_topics(void *args);
-DataFrame *psql_get_articles(char *topic, void *args);
+Dataframe psql_get_topics(void *args);
+Dataframe psql_get_articles(char *topic, void *args);
 void psql_mark_article(int article_id, void *args);
 void psql_add_article(char *topic, char *title, char *author,
   char *source, void *args);

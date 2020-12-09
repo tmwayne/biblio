@@ -9,19 +9,14 @@
 #ifndef DATAFRAME_INCLUDED
 #define DATAFRAME_INCLUDED
 
-#define T DataFrame
+#define T Dataframe
+typedef struct T *T;
 
-typedef char ** Column;
-
-typedef struct dataframe {
-  int nrows;
-  int ncols;
-  Column *columns;
-  char **headers;
-} DataFrame;
-
-DataFrame *df_from_pgres(PGresult *);
-void df_free(DataFrame *);
+extern T     Dataframe_from_pgres(PGresult *);
+extern int   Dataframe_nrows(T);
+extern int   Dataframe_ncols(T);
+extern char *Dataframe_getval(T, int row, int col);
+extern void  Dataframe_free(T);
 
 #undef T
 #endif

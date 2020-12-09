@@ -3,7 +3,7 @@
 // dataframe.c
 // -----------------------------------------------------------------------------
 //
-// DataFrame for holding data with multiple columns
+// Dataframe for holding data with multiple columns
 //
 
 #include <stdio.h>
@@ -12,13 +12,25 @@
 #include <libpq-fe.h>
 #include "dataframe.h"
 
-DataFrame *df_from_pgres(PGresult *res) {
+#define T Dataframe
+
+typedef char ** Column;
+
+struct T {
+  int nrows;
+  int ncols;
+  Column *columns;
+  char **headers;
+};
+
+
+T Dataframe_from_pgres(PGresult *res) {
 
   int nrows = PQntuples(res);
   int ncols = PQnfields(res);
   int header_len = 32;
   
-  DataFrame *out = malloc(sizeof(DataFrame));
+  T out = malloc(sizeof(Dataframe));
   out->nrows = nrows;
   out->ncols = ncols;
   out->columns = malloc(out->ncols * sizeof(Column));
@@ -43,7 +55,25 @@ DataFrame *df_from_pgres(PGresult *res) {
 
 }
 
-void df_free(DataFrame *df) {
+int Dataframe_nrows(T df) {
+
+  return df->nrows;
+
+}
+
+int Dataframe_ncols(T df) {
+  
+  return df->ncols;
+
+}
+
+char *Dataframe_getval(T df, int row, int col) {
+  
+  return df->columns[col][row];
+
+}
+
+void Dataframe_free(T df) {
 
   int nrows = df->nrows;
   int ncols = df->ncols;
@@ -81,10 +111,16 @@ int main(int argc, char **argv) {
     exit(1);
   }
 
-  DataFrame *results = df_from_pgres(res);
+  T results = Dataframe_from_pgres(res);
 
-  for (int row=0; row<results->nrows; row++)
-      printf("%-20s %s\n", results->columns[0][row], results->columns[1][row]);
+  // for (int row=0; row<results->nrows; row++)
+      // printf("%-20s %s\n", results->columns[0][row], results->columns[1][row]);
+
+  for (int row=0; row<Dataframe_nrows(results); row++)
+    printf("%-20s %s\n", Dataframe_getval(results, row, 0),
+      Dataframe_getval(results, row, 1));
 
 }
 #endif
+
+#undef T

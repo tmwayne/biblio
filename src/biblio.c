@@ -11,11 +11,11 @@
 #include <string.h>
 #include <libpq-fe.h>
 #include "argparse.h"
-#include "psql-backend.h"
+#include "backend-psql.h"
   
-void list_articles(Backend *);
-void add_article(Backend *);
-void export_raw(Backend *);
+void list_articles();
+void add_article();
+void export_raw();
 
 static char *read_input(char *buf, int len) {
   
@@ -26,6 +26,8 @@ static char *read_input(char *buf, int len) {
     return NULL;
 
 }
+
+static Backend *backend;
 
 int main(int argc, char **argv) {
 
@@ -41,8 +43,6 @@ int main(int argc, char **argv) {
 
   char *command = arguments.args[0];
 
-  Backend *backend;
-
   if (0 == strncmp(arguments.backend, "postgres", sizeof("postgres")))
     backend = psql_backend_create();
   else {
@@ -53,11 +53,11 @@ int main(int argc, char **argv) {
   do {
 
     if (0 == strncmp(command, "list", sizeof("list")))
-      list_articles(backend);
+      list_articles();
     else if (0 == strncmp(command, "add", sizeof("add")))
-      add_article(backend);
+      add_article();
     else if (0 == strncmp(command, "export", sizeof("export")))
-      export_raw(backend);
+      export_raw();
     else
       fprintf(stderr, "biblio: '%s' is not a biblio command.\n"
         "See 'biblio --help'\n", command);
@@ -68,7 +68,7 @@ int main(int argc, char **argv) {
 
 }
  
-void list_articles(Backend *backend) {
+void list_articles() {
 
   // Variables
   char buf[256];
@@ -76,34 +76,34 @@ void list_articles(Backend *backend) {
   char topic[64];
 
   // Get topics
-  DataFrame *topics = backend->get_topics(backend->args);
+  Dataframe topics = backend->get_topics(backend->args);
 
   // Print topics
   printf("Found the following topics\n");
-  for (int row=0; row<topics->nrows; row++)
-    printf("%d) %s\n", row, topics->columns[0][row]);
+  for (int row=0; row < Dataframe_nrows(topics); row++)
+    printf("%d) %s\n", row, Dataframe_getval(topics, row, 0));
 
   // Prompt user to select topic
   printf("\nSelect a topic to view articles: ");
 
   if (read_input(buf, sizeof(buf))) {
     if (1 == sscanf(buf, "%d", &selection))
-      snprintf(topic, sizeof(topic), topics->columns[0][selection]);
+      snprintf(topic, sizeof(topic), Dataframe_getval(topics, selection, 0));
     else
       fprintf(stderr, "Invalid selection...\n");
   }
 
 
   // Get articles on topic
-  DataFrame *articles = backend->get_articles(topic, backend->args);
+  Dataframe articles = backend->get_articles(topic, backend->args);
 
   // Print articles
-  printf("\nFound %d articles on %s\n", articles->nrows, topic);
+  printf("\nFound %d articles on %s\n", Dataframe_nrows(articles), topic);
 
-  for (int row=0; row<articles->nrows; row++) {
-    char *title = articles->columns[1][row];
-    char *author = articles->columns[2][row];
-    char *source = articles->columns[3][row];
+  for (int row=0; row < Dataframe_nrows(articles); row++) {
+    char *title = Dataframe_getval(articles, row, 1);
+    char *author = Dataframe_getval(articles, row, 2);
+    char *source = Dataframe_getval(articles, row, 3);
     printf("%d) ", row);
     if (strlen(title)) {
       printf("\"%s\"", title);
@@ -121,7 +121,7 @@ void list_articles(Backend *backend) {
       fprintf(stderr, "Invalid selection...\n");
   
   // List article source
-  char *source = articles->columns[3][selection];
+  char *source = Dataframe_getval(articles, selection, 3);
   if (strlen(source))
     printf("Source: %s\n", source);
   else
@@ -131,18 +131,18 @@ void list_articles(Backend *backend) {
   printf("\nMark article as read? ");
   if (read_input(buf, sizeof(buf))) {
     if (strncmp(buf, "y", 1) == 0) {
-      int article_id = atoi(articles->columns[0][selection]);
+      int article_id = atoi(Dataframe_getval(articles, selection, 0));
       backend->mark_article(article_id, backend->args);
       printf("Marked as read...\n");
     }
   }
 
-  df_free(topics);
-  df_free(articles);
+  Dataframe_free(topics);
+  Dataframe_free(articles);
 
 }
 
-void add_article(Backend *backend) {
+void add_article() {
 
   char topic[256];
   char title[256];
@@ -164,7 +164,7 @@ void add_article(Backend *backend) {
   
 }
 
-void export_raw(Backend *backend) {
+void export_raw() {
   
   backend->export_raw(backend->args);
 

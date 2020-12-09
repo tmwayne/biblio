@@ -6,7 +6,8 @@
 // PostgreSQL backend for Biblio program
 //
 
-#include "psql-backend.h"
+#include "backend-psql.h"
+// #include "dataframe.h"
 
 static void exit_nicely(PGconn *conn) {
   PQfinish(conn);
@@ -60,20 +61,19 @@ void psql_backend_free(void *args) {
 }
 
 
-DataFrame *psql_get_topics(void *args) {
+Dataframe psql_get_topics(void *args) {
 
   PGconn *conn = (PGconn *) args;
   PGresult *res = PQexec(conn, "SELECT DISTINCT topic FROM articles");
 
-  DataFrame *topics = df_from_pgres(res);
+  Dataframe topics = Dataframe_from_pgres(res);
   
   PQclear(res);
   return topics;
 
 }
 
-
-DataFrame *psql_get_articles(char *topic, void *args) {
+Dataframe psql_get_articles(char *topic, void *args) {
 
   PGconn *conn = (PGconn *) args;
   
@@ -88,7 +88,7 @@ DataFrame *psql_get_articles(char *topic, void *args) {
     exit_nicely(conn);
   }
 
-  DataFrame *articles = df_from_pgres(res);
+  Dataframe articles = Dataframe_from_pgres(res);
 
   PQclear(res);
   return articles;
@@ -181,18 +181,20 @@ void psql_export_raw(void *args) {
   PQclear(res);
 }
 
-#ifdef PSQL_BACKEND_DEBUG
+#ifdef BACKEND_PSQL_DEBUG
 int main() {
 
   Backend *backend = psql_backend_create();
 
-  DataFrame *topics = backend->get_topics(backend->args);
-  df_free(topics);
+  Dataframe topics = backend->get_topics(backend->args);
+  Dataframe_free(topics);
 
-  DataFrame *articles = backend->get_articles("stats", backend->args);
-  for (int row=0; row<articles->nrows; row++)
-    printf("%s\n", articles->columns[0][row]);
-  df_free(articles);
+  Dataframe articles = backend->get_articles("stats", backend->args);
+
+  for (int row=0; row < Dataframe_nrows(articles); row++)
+    printf("%s\n", Dataframe_getval(articles, row, 3));
+
+  Dataframe_free(articles);
 
   backend->mark_article(57, backend->args);
 
