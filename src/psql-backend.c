@@ -30,6 +30,8 @@ Backend *psql_backend_create() {
   psql_backend->get_topics = psql_get_topics;
   psql_backend->get_articles = psql_get_articles;
   psql_backend->mark_article = psql_mark_article;
+  psql_backend->add_article = psql_add_article;
+  psql_backend->export_raw = psql_export_raw;
   psql_backend->free = psql_backend_free;
 
   PGconn *conn = PQconnectdb("host=localhost dbname=postgres "
@@ -113,6 +115,70 @@ void psql_mark_article(int article_id, void *args) {
 
   PQclear(res);
 
+}
+
+void psql_add_article(char *topic, char *title, char *author,
+  char *source, void *args) {
+
+  PGconn *conn = (PGconn *) args;
+
+  const char *ParamValues[4];
+  ParamValues[0] = topic;
+  ParamValues[1] = title;
+  ParamValues[2] = author;
+  ParamValues[3] = source;
+
+  char *command = "INSERT INTO articles (topic, title, author, source) "
+    "VALUES ($1, $2, $3, $4)";
+  PGresult *res = PQexecParams(conn, command, 4, NULL,
+    ParamValues, NULL, NULL, 0);
+  if (PQresultStatus(res) != PGRES_COMMAND_OK) {
+    fprintf(stderr, "Failed to add article\n");
+    exit_nicely(conn);
+  }
+
+  PQclear(res);
+
+}
+
+void psql_export_raw(void *args) {
+
+  PGconn *conn = (PGconn *) args;
+  PGresult *res;
+
+  res = PQexec(conn, "SELECT COUNT(*) FROM articles");
+  if (PQresultStatus(res) != PGRES_TUPLES_OK) {
+    fprintf(stderr, "Unable to export data\n");
+    exit_nicely(conn);
+  }
+
+  int nrows = atoi(PQgetvalue(res, 0, 0));
+
+  char *command = "COPY articles TO STDOUT with (FORMAT CSV, DELIMITER '|', HEADER)";
+  res = PQexec(conn, command);
+  if (PQresultStatus(res) != PGRES_COPY_OUT) {
+    fprintf(stderr, "Unable to export data\n");
+    exit_nicely(conn);
+  }
+
+  char *out[nrows + 1]; // add 1 to include header row
+  int row, exit_code;
+  for (row=0; (exit_code = PQgetCopyData(conn, &out[row], 0)) > 0; row++) ;
+  out[row] = 0;
+
+  // exit_code of -1 means COPY is finished
+  // exit_code of -2 means an error occurred
+  if (exit_code == -2) {
+    fprintf(stderr, "Error occurred exporting data\n");
+    exit_nicely(conn);
+  }
+
+  for (int row=0; out[row]; row++) {
+    fprintf(stdout, "%s", out[row]);
+    PQfreemem(out[row]);
+  }
+
+  PQclear(res);
 }
 
 #ifdef PSQL_BACKEND_DEBUG

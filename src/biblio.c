@@ -13,10 +13,19 @@
 #include "argparse.h"
 #include "psql-backend.h"
   
-char *read_input(char *, int);
 void list_articles(Backend *);
-// void add_article(Backend *);
-// void export_articles(Backend *);
+void add_article(Backend *);
+void export_raw(Backend *);
+
+static char *read_input(char *buf, int len) {
+  
+  if(fgets(buf, len, stdin)) {
+    buf[strcspn(buf, "\n")] = '\0';
+    return buf;
+  } else
+    return NULL;
+
+}
 
 int main(int argc, char **argv) {
 
@@ -45,10 +54,10 @@ int main(int argc, char **argv) {
 
     if (0 == strncmp(command, "list", sizeof("list")))
       list_articles(backend);
-    // else if (0 == strncmp(command, "add", sizeof("add")))
-      // add_article(conn);
-    // else if (0 == strncmp(command, "export", sizeof("export")))
-      // export_articles(conn);
+    else if (0 == strncmp(command, "add", sizeof("add")))
+      add_article(backend);
+    else if (0 == strncmp(command, "export", sizeof("export")))
+      export_raw(backend);
     else
       fprintf(stderr, "biblio: '%s' is not a biblio command.\n"
         "See 'biblio --help'\n", command);
@@ -59,17 +68,6 @@ int main(int argc, char **argv) {
 
 }
  
-char *read_input(char *buf, int len) {
-  
-  if(fgets(buf, len, stdin)) {
-    buf[strcspn(buf, "\n")] = '\0';
-    return buf;
-  } else
-    return NULL;
-
-}
-
-
 void list_articles(Backend *backend) {
 
   // Variables
@@ -144,83 +142,30 @@ void list_articles(Backend *backend) {
 
 }
 
-// void add_article(PGconn *conn) {
-// 
-  // char topic[64];
-  // char title[256];
-  // char author[256];
-  // char source[256];
-  // const char *ParamValues[4];
-  // PGresult *res;
-// 
-  // // while (1) {
-  // //
-    // printf("Enter information for new article:\n");
-    // printf("Topic: ");
-    // read_input(topic, sizeof(topic));
-    // printf("Title: ");
-    // read_input(title, sizeof(title));
-    // printf("Author: ");
-    // read_input(author, sizeof(author));
-    // printf("Source: ");
-    // read_input(source, sizeof(source));
-// 
-    // ParamValues[0] = topic;
-    // ParamValues[1] = title;
-    // ParamValues[2] = author;
-    // ParamValues[3] = source;
-// 
-    // char *command = "INSERT INTO articles (topic, title, author, source) "
-      // "VALUES ($1, $2, $3, $4)";
-    // res = PQexecParams(conn, command, 4, NULL, ParamValues, NULL, NULL, 0);
-    // if (PQresultStatus(res) != PGRES_COMMAND_OK) {
-      // fprintf(stderr, "Insert failed\n");
-      // exit_nicely(conn);
-    // } else
-      // printf("Added article to library...\n");
-// 
-    // PQclear(res);
-  // 
-// }
-// 
-// void export_articles(PGconn *conn) {
-  // 
-  // PGresult *res;
-// 
-  // res = PQexec(conn, "SELECT COUNT(*) FROM articles");
-  // if (PQresultStatus(res) != PGRES_TUPLES_OK) {
-    // fprintf(stderr, "Unable to export data\n");
-    // exit_nicely(conn);
-  // }
-// 
-  // int nrows = atoi(PQgetvalue(res, 0, 0));
-// 
-  // char *command = "COPY articles TO STDOUT with (FORMAT CSV, DELIMITER '|', HEADER)";
-  // res = PQexec(conn, command);
-  // if (PQresultStatus(res) != PGRES_COPY_OUT) {
-    // fprintf(stderr, "Unable to export data\n");
-    // exit_nicely(conn);
-  // }
-// 
-  // char *output[nrows + 1]; // add 1 to include header row
-  // int i, exit_code;
-  // for (i=0; (exit_code = PQgetCopyData(conn, &output[i], 0)) > 0; i++) ;
-  // output[i] = 0;
-// 
-  // // exit_code of -1 means COPY is finished
-  // // exit_code of -2 means an error occurred
-  // if (exit_code == -2) {
-    // fprintf(stderr, "Error occurred exporting data\n");
-    // exit_nicely(conn);
-  // }
-// 
-  // for (int i=0; output[i]; i++) {
-    // fprintf(stdout, "%s", output[i]);
-    // PQfreemem(output[i]);
-  // }
-// 
-  // PQclear(res);
-// 
-// }
-// 
-// 
+void add_article(Backend *backend) {
+
+  char topic[256];
+  char title[256];
+  char author[256];
+  char source[256];
+
+  printf("Enter information for new article:\n");
+  printf("Topic: ");
+  read_input(topic, sizeof(topic));
+  printf("Title: ");
+  read_input(title, sizeof(title));
+  printf("Author: ");
+  read_input(author, sizeof(author));
+  printf("Source: ");
+  read_input(source, sizeof(source));
+
+  backend->add_article(topic, title, author, source, backend->args);
+  printf("Added article to library...\n");
+  
+}
+
+void export_raw(Backend *backend) {
+  
+  backend->export_raw(backend->args);
+
+}
