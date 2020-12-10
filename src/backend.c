@@ -12,17 +12,16 @@
 #include "backend.h"
 #include "backend-psql.h"
 
-static int is_string(char *str, char *target) {
+static int is_string_match(char *str, char *target) {
 
-  // If strncmp returns 0 then the strings are the same
-  // so return 1
+  // If strncmp returns 0 then the strings are the same so return 1
   return strncmp(str, target, strlen(target)) ? 0 : 1;
 
 }
 
 Backend Backend_init(char *type) {
 
-  if (is_string(type, "postgres"))
+  if (is_string_match(type, "postgres"))
     return psql_backend_create();
   else {
     fprintf(stderr, "Backend type not supported\n");
@@ -46,7 +45,7 @@ void Backend_free(Backend backend) {
 int main() {
 
   char *type = "postgres";
-  printf("%s = postgres: %d\n", type, is_string(type, "postgres"));
+  printf("%s = postgres: %d\n", type, is_string_match(type, "postgres"));
 
   Backend backend = Backend_init(type);
   Backend_free(backend);

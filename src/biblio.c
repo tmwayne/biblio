@@ -27,38 +27,39 @@ static char *read_input(char *buf, int len) {
 
 }
 
+static int is_string_match(char *str, char *target) {
+
+  // If strncmp returns 0 then the strings are the same so return 1
+  return strncmp(str, target, strlen(target)) ? 0 : 1;
+
+}
+
+
 static Backend backend;
 
 int main(int argc, char **argv) {
 
-  /* ARGUMENTS */
-
-  // Defaults
   struct arguments arguments;
   arguments.backend = "postgres";
 
-  // Command-line 
   argp_parse(&argp, argc, argv, 0, 0, &arguments);
-
-  char *command = arguments.args[0];
 
   backend = Backend_init(arguments.backend);
 
-  do {
+  char *command = arguments.args[0];
 
-    if (0 == strncmp(command, "list", sizeof("list")))
-      list_articles();
-    else if (0 == strncmp(command, "add", sizeof("add")))
-      add_article();
-    else if (0 == strncmp(command, "export", sizeof("export")))
-      export_raw();
-    else
-      fprintf(stderr, "biblio: '%s' is not a biblio command.\n"
-        "See 'biblio --help'\n", command);
+  if (is_string_match(command, "list"))
+    list_articles();
 
-    break;
-  
-  } while (1);
+  else if (is_string_match(command, "add"))
+    add_article();
+
+  else if (is_string_match(command, "export"))
+    export_raw();
+
+  else
+    fprintf(stderr, "biblio: '%s' is not a biblio command.\n"
+      "See 'biblio --help'\n", command);
 
 }
  
