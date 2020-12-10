@@ -6,35 +6,19 @@
 // PostgreSQL backend for Biblio program
 //
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <libpq-fe.h>
 #include "dataframe.h"
+#include "backend.h"
 
-#ifndef BACKEND_INCLUDED
-#define BACKEND_INCLUDED
+#ifndef BACKEND_PSQL_INCLUDED
+#define BACKEND_PSQL_INCLUDED
 
-typedef struct backend {
-  Dataframe (*get_topics)(void *args);
-  Dataframe (*get_articles)(char *topic, void *args);
-  void (*mark_article)(int article_id, void *args);
-  void (*add_article)(char *topic, char *title, char *author,
-    char *source, void *args);
-  void (*export_raw)(void *args);
-  void (*free)(void *args);
-  void *args;
-} Backend;
-
-void Backend_free(Backend *);
+extern Dataframe psql_get_topics(void *args);
+extern Dataframe psql_get_articles(char *topic, void *args);
+extern void      psql_mark_article(int article_id, void *args);
+extern void      psql_add_article(char *topic, char *title, char *author,
+                  char *source, void *args);
+extern void      psql_export_raw(void *args);
+extern Backend   psql_backend_create();
+extern void      psql_backend_free(void *args);
 
 #endif
-
-Dataframe psql_get_topics(void *args);
-Dataframe psql_get_articles(char *topic, void *args);
-void psql_mark_article(int article_id, void *args);
-void psql_add_article(char *topic, char *title, char *author,
-  char *source, void *args);
-void psql_export_raw(void *args);
-Backend *psql_backend_create();
-void psql_backend_free(void *args);

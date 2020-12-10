@@ -6,28 +6,22 @@
 // PostgreSQL backend for Biblio program
 //
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <libpq-fe.h>
 #include "backend-psql.h"
-// #include "dataframe.h"
 
 static void exit_nicely(PGconn *conn) {
   PQfinish(conn);
   exit(EXIT_FAILURE);
 }
 
-void Backend_free(Backend *backend) {
-  
-  if (backend == NULL) {
-    fprintf(stderr, "Can't free NULL pointer\n");
-    exit(EXIT_FAILURE);
-  }
-  backend->free(backend->args);
-  free(backend);
+Backend psql_backend_create() {
 
-}
+  Backend psql_backend; 
+  psql_backend = malloc(sizeof(*psql_backend));
 
-Backend *psql_backend_create() {
-
-  Backend *psql_backend = malloc(sizeof(Backend));
   psql_backend->get_topics = psql_get_topics;
   psql_backend->get_articles = psql_get_articles;
   psql_backend->mark_article = psql_mark_article;
@@ -184,7 +178,7 @@ void psql_export_raw(void *args) {
 #ifdef BACKEND_PSQL_DEBUG
 int main() {
 
-  Backend *backend = psql_backend_create();
+  Backend backend = psql_backend_create();
 
   Dataframe topics = backend->get_topics(backend->args);
   Dataframe_free(topics);

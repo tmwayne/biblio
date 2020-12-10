@@ -30,7 +30,9 @@ T Dataframe_from_pgres(PGresult *res) {
   int ncols = PQnfields(res);
   int header_len = 32;
   
-  T out = malloc(sizeof(Dataframe));
+  T out;
+  out = malloc(sizeof(*out));
+
   out->nrows = nrows;
   out->ncols = ncols;
   out->columns = malloc(out->ncols * sizeof(Column));

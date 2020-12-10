@@ -27,7 +27,7 @@ static char *read_input(char *buf, int len) {
 
 }
 
-static Backend *backend;
+static Backend backend;
 
 int main(int argc, char **argv) {
 
@@ -36,19 +36,13 @@ int main(int argc, char **argv) {
   // Defaults
   struct arguments arguments;
   arguments.backend = "postgres";
-  // arguments.without = 0;
 
   // Command-line 
   argp_parse(&argp, argc, argv, 0, 0, &arguments);
 
   char *command = arguments.args[0];
 
-  if (0 == strncmp(arguments.backend, "postgres", sizeof("postgres")))
-    backend = psql_backend_create();
-  else {
-    fprintf(stderr, "Backend not currently supported.\n");
-    exit(EXIT_FAILURE);
-  }
+  backend = Backend_init(arguments.backend);
 
   do {
 

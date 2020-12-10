@@ -6,6 +6,8 @@
 // DataFrame for holding data with multiple columns
 //
 
+#include <libpq-fe.h>
+
 #ifndef DATAFRAME_INCLUDED
 #define DATAFRAME_INCLUDED
 
