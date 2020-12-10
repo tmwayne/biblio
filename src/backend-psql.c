@@ -17,7 +17,7 @@ static void exit_nicely(PGconn *conn) {
   exit(EXIT_FAILURE);
 }
 
-Backend psql_backend_create() {
+Backend psql_backend_init() {
 
   Backend psql_backend; 
   psql_backend = malloc(sizeof(*psql_backend));
@@ -54,7 +54,6 @@ void psql_backend_free(void *args) {
 
 }
 
-
 Dataframe psql_get_topics(void *args) {
 
   PGconn *conn = (PGconn *) args;
@@ -74,7 +73,8 @@ Dataframe psql_get_articles(char *topic, void *args) {
   const char *ParamValues[1];
   ParamValues[0] = topic;
 
-  char *command = "SELECT id, title, author, source FROM articles WHERE topic=$1";
+  char *command = \
+    "SELECT id, title, author, source FROM articles WHERE topic=$1 AND NOT is_read";
   PGresult *res = PQexecParams(conn, command, 1, NULL, 
     ParamValues, NULL, NULL, 0);
   if (PQresultStatus(res) != PGRES_TUPLES_OK) {
@@ -111,19 +111,18 @@ void psql_mark_article(int article_id, void *args) {
 
 }
 
-void psql_add_article(char *topic, char *title, char *author,
-  char *source, void *args) {
+void psql_add_article(Article *article, void *args) {
 
   PGconn *conn = (PGconn *) args;
 
   const char *ParamValues[4];
-  ParamValues[0] = topic;
-  ParamValues[1] = title;
-  ParamValues[2] = author;
-  ParamValues[3] = source;
+  ParamValues[0] = article->topic;
+  ParamValues[1] = article->title;
+  ParamValues[2] = article->author;
+  ParamValues[3] = article->source;
 
-  char *command = "INSERT INTO articles (topic, title, author, source) "
-    "VALUES ($1, $2, $3, $4)";
+  char *command = "INSERT INTO articles (topic, title, author, source, is_read) "
+    "VALUES ($1, $2, $3, $4, 'f')";
   PGresult *res = PQexecParams(conn, command, 4, NULL,
     ParamValues, NULL, NULL, 0);
   if (PQresultStatus(res) != PGRES_COMMAND_OK) {
@@ -178,7 +177,7 @@ void psql_export_raw(void *args) {
 #ifdef BACKEND_PSQL_DEBUG
 int main() {
 
-  Backend backend = psql_backend_create();
+  Backend backend = psql_backend_init();
 
   Dataframe topics = backend->get_topics(backend->args);
   Dataframe_free(topics);

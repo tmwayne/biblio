@@ -7,6 +7,7 @@
 //
 
 #include "dataframe.h"
+#include "article.h"
 
 #ifndef BACKEND_INCLUDED
 #define BACKEND_INCLUDED
@@ -18,14 +19,14 @@ struct Backend {
   Dataframe (*get_topics)(void *args);
   Dataframe (*get_articles)(char *topic, void *args);
   void (*mark_article)(int article_id, void *args);
-  void (*add_article)(char *topic, char *title, char *author,
-    char *source, void *args);
+  void (*add_article)(Article *article, void *args);
   void (*export_raw)(void *args);
   void (*free)(void *args);
   void *args;
 };
 
-extern void Backend_free(T);
 extern T    Backend_init(char *type);
+extern void Backend_free(T);
 
+#undef T
 #endif

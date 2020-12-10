@@ -17,6 +17,7 @@ const char* argp_program_bug_address = "<tylerwayne3@gmail.com>";
 struct arguments {
   char *args[1];      // Positional argument
   char *backend;
+  char *frontend;
   // int  without;       // Optional argument without value
 };
 
@@ -25,7 +26,8 @@ struct arguments {
  * Order of fields: { name, key, arg, flags, doc }
  */
 static struct argp_option options[] = {
-  {"backend", 'b', "name", 0, "Name of backend holding data"},
+  {"backend", 'b', "type", 0, "Type of backend holding data"},
+  {"frontend", 'f', "type", 0, "Type of frontend"},
   // {"without-value", 'b', 0, 0, "Optional argument without value"},
   {0}
 };
@@ -38,11 +40,11 @@ static error_t parse_opt(int key, char* arg, struct argp_state* state) {
   struct arguments* arguments = state->input;
 
   switch (key) {
-    // case 'a':
-      // arguments->with = arg;
-      // break;
     case 'b':
       arguments->backend = arg;
+      break;
+    case 'f':
+      arguments->frontend = arg;
       break;
     case ARGP_KEY_ARG:
       if (state->arg_num >= 1)

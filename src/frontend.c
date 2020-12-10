@@ -1,16 +1,16 @@
 //
 // -----------------------------------------------------------------------------
-// backend.c
+// frontend.c
 // -----------------------------------------------------------------------------
 //
-// Backend abstract base class for Biblio
+// Frontend abstract base class for Biblio
 //
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "backend.h"
-#include "backend-psql.h"
+#include "frontend.h"
+#include "frontend-console.h"
 
 static int is_string_match(char *str, char *target) {
 
@@ -19,36 +19,36 @@ static int is_string_match(char *str, char *target) {
 
 }
 
-Backend Backend_init(char *type) {
+Frontend Frontend_init(char *type) {
 
-  if (is_string_match(type, "postgres"))
-    return psql_backend_init();
+  if (is_string_match(type, "console"))
+    return console_frontend_init();
   else {
-    fprintf(stderr, "Backend type not supported\n");
+    fprintf(stderr, "Frontend type not supported\n");
     exit(EXIT_FAILURE);
   }
 
 }
 
-void Backend_free(Backend backend) {
+void Frontend_free(Frontend frontend) {
   
-  if (backend == NULL) {
+  if (frontend == NULL) {
     fprintf(stderr, "Can't free NULL pointer\n");
     exit(EXIT_FAILURE);
   }
-  backend->free(backend->args);
-  free(backend);
+
+  frontend->free(frontend->args);
+  free(frontend);
 
 }
 
-#ifdef BACKEND_DEBUG
+#ifdef FRONTEND_DEBUG
 int main() {
 
-  char *type = "postgres";
-  printf("%s = postgres: %d\n", type, is_string_match(type, "postgres"));
+  char *type = "console";
 
-  Backend backend = Backend_init(type);
-  Backend_free(backend);
+  Frontend frontend = Frontend_init(type);
+  Frontend_free(frontend);
 
 }
 #endif
