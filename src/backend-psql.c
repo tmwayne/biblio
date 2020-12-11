@@ -139,14 +139,6 @@ void psql_export_raw(void *args) {
   PGconn *conn = (PGconn *) args;
   PGresult *res;
 
-  res = PQexec(conn, "SELECT COUNT(*) FROM articles");
-  if (PQresultStatus(res) != PGRES_TUPLES_OK) {
-    fprintf(stderr, "Unable to export data\n");
-    exit_nicely(conn);
-  }
-
-  int nrows = atoi(PQgetvalue(res, 0, 0));
-
   char *command = "COPY articles TO STDOUT with (FORMAT CSV, DELIMITER '|', HEADER)";
   res = PQexec(conn, command);
   if (PQresultStatus(res) != PGRES_COPY_OUT) {
@@ -154,21 +146,18 @@ void psql_export_raw(void *args) {
     exit_nicely(conn);
   }
 
-  char *out[nrows + 1]; // add 1 to include header row
-  int row, exit_code;
-  for (row=0; (exit_code = PQgetCopyData(conn, &out[row], 0)) > 0; row++) ;
-  out[row] = 0;
+  int exit_code;
+  char *buf;
+  for (int row=0; (exit_code = PQgetCopyData(conn, &buf, 0)) > 0; row++) {
+    fprintf(stdout, buf);
+    PQfreemem(buf);
+  }
 
   // exit_code of -1 means COPY is finished
   // exit_code of -2 means an error occurred
   if (exit_code == -2) {
-    fprintf(stderr, "Error occurred exporting data\n");
+    fprintf(stderr, "Error exporting complete data\n");
     exit_nicely(conn);
-  }
-
-  for (int row=0; out[row]; row++) {
-    fprintf(stdout, "%s", out[row]);
-    PQfreemem(out[row]);
   }
 
   PQclear(res);
