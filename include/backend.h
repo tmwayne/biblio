@@ -6,6 +6,7 @@
 // Backend abstract base class for Biblio
 //
 
+#include "registry.h"
 #include "dataframe.h"
 #include "article.h"
 
@@ -22,10 +23,11 @@ struct B {
   void (*add_article)(Article *article, void *args);
   void (*export_raw)(void *args);
   void (*free)(void *args);
+  void *plugin_handle;
   void *args;
 };
 
-extern B    Backend_init(char *type);
+extern B    Backend_init(Registry, char *type);
 extern void Backend_free(B);
 
 #undef B

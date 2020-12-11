@@ -12,10 +12,19 @@
 #include <libpq-fe.h>
 #include "backend-psql.h"
 
+static char *backend_type = "postgres";
+
 static void exit_nicely(PGconn *conn) {
   PQfinish(conn);
   exit(EXIT_FAILURE);
 }
+
+Registry register_backend(Registry registry, char *plugin_path) {
+
+  return Registry_add(registry, backend_type, plugin_path,
+    (void *(*)()) psql_backend_init);
+
+}  
 
 Backend psql_backend_init() {
 

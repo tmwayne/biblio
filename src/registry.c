@@ -9,8 +9,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <dirent.h> // opendir
+#include <limits.h> // PATH_MAX
+#include <unistd.h> // getcwd, chdir
+#include <dlfcn.h>  // dlopen, dlclose
 #include "registry.h"
-#include "backend.h"
 
 static int is_string_match(char *str, char *target) {
 
@@ -19,7 +22,7 @@ static int is_string_match(char *str, char *target) {
 
 }
 
-Registry Registry_init(char *type, Backend (*Backend_init)()) {
+Registry Registry_init(char *type, char *plugin_path, void *(*init)()) {
 
   Registry entry;
   entry = malloc(sizeof(*entry));
@@ -29,15 +32,17 @@ Registry Registry_init(char *type, Backend (*Backend_init)()) {
   entry->type = malloc(strlen(type)+1);
   strcpy(entry->type, type);
 
-  entry->Backend_init = Backend_init;
+  entry->plugin_path = plugin_path;
+  entry->init = init;
 
   return entry;
 
 }
 
-Registry Registry_add(Registry registry, char *type, Backend (*Backend_init)()) {
+Registry Registry_add(Registry registry, char *type, char *plugin_path,
+  void *(*init)()) {
   
-  Registry entry = Registry_init(type, Backend_init);
+  Registry entry = Registry_init(type, plugin_path, init);
 
   while (registry->next) registry = registry->next;
   registry->next = entry;
@@ -64,10 +69,73 @@ void Registry_free(Registry registry) {
 
     free(registry->type);
 
+    if (registry->plugin_path)
+      free(registry->plugin_path);
+
     Registry next = registry->next;
     free(registry);
     registry = next;
 
   }
+
+}
+
+void load_plugins(Registry registry, char *plugin_dir) {
+
+  // Save current working directory
+  char cwd[PATH_MAX];
+  getcwd(cwd, PATH_MAX);
+
+  // Change to plugin directory
+  if (0 != chdir(plugin_dir)) {
+    fprintf(stderr, "Failed to find plugin directory\n");
+    exit(EXIT_FAILURE);
+  }
+
+  DIR *d;
+  struct dirent *dir;
+  d = opendir(".");
+
+  if (d) {
+
+    while ((dir = readdir(d)) != NULL) {
+      if (strstr(dir->d_name, ".so")) {
+        char *path = realpath(dir->d_name, NULL);
+        register_plugin(registry, path);
+      }
+    }
+    closedir(d);
+
+  }
+  chdir(cwd);
+
+}
+
+void register_plugin(Registry registry, char *plugin_path) {
+  
+  void *dlhandle;
+  char *error;
+
+  dlhandle = dlopen(plugin_path, RTLD_NOW);
+  if (!dlhandle) {
+    fprintf(stderr, "%s\n", dlerror());
+    exit(EXIT_FAILURE);
+  }
+
+  dlerror(); // clear any existing error
+
+  Registry (*register_backend)(Registry, char *) = \
+    dlsym(dlhandle, "register_backend");
+
+  if ((error = dlerror()) != NULL) {
+    fprintf(stderr, "%s\n", error);
+    exit(EXIT_FAILURE);
+  }
+
+  register_backend(registry, plugin_path);
+
+  printf("Registered backend!\n");
+
+  dlclose(dlhandle);
 
 }

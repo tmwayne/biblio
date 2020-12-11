@@ -8,24 +8,33 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <dlfcn.h> // dlopen, dlclose
 #include "registry.h"
 #include "backend.h"
-#include "backend-psql.h"
 
-Backend Backend_init(char *type) {
+Backend Backend_init(Registry registry, char *type) {
 
-  Registry backend_registry;
-  backend_registry = Registry_init("postgres", psql_backend_init);
+  void *dlhandle;
+  Backend (*backend_init)();
+  Backend backend;
+
 
   Registry entry;
-  if ((entry = Registry_find(backend_registry, type)))
-    return entry->Backend_init();
-  else {
+  if ((entry = Registry_find(registry, type))) {
+    
+    // Open plugin dynamic library if one has been provided
+    dlhandle = entry->plugin_path ? dlopen(entry->plugin_path, RTLD_NOW) : NULL;
+    backend_init = (Backend (*)()) entry->init;
+    backend = backend_init();
+    backend->plugin_handle = dlhandle;
+    
+    return backend;
+  } else {
     fprintf(stderr, "Failed to find backend of type %s\n", type);
     exit(EXIT_FAILURE);
   }
 
-  Registry_free(backend_registry);
+  Registry_free(registry);
 
 }
 
@@ -37,6 +46,10 @@ void Backend_free(Backend backend) {
   }
 
   backend->free(backend->args);
+
+  if (backend->plugin_handle)
+    dlclose(backend->plugin_handle);
+
   free(backend);
 
 }

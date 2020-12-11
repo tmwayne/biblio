@@ -8,12 +8,13 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <libpq-fe.h>
+#include <string.h> // strlen, strncmp
 #include "argparse.h"
-#include "backend-psql.h"
+#include "registry.h"
+#include "backend.h"
+#include "dataframe.h"
 #include "frontend-console.h"
-  
+
 void list_articles();
 void add_article();
 void export_raw();
@@ -25,6 +26,7 @@ static int is_string_match(char *str, char *target) {
 
 }
 
+static Registry backend_registry;
 static Backend backend;
 static Frontend frontend;
 
@@ -36,7 +38,12 @@ int main(int argc, char **argv) {
 
   argp_parse(&argp, argc, argv, 0, 0, &arguments);
 
-  backend = Backend_init(arguments.backend);
+  // Register backends
+  backend_registry = Registry_init("file", NULL, (void *(*)()) 0);
+  load_plugins(backend_registry, "plugins");
+
+  // Initialize backend and frontend
+  backend = Backend_init(backend_registry, arguments.backend);
   frontend = Frontend_init(arguments.frontend);
 
   char *command = arguments.args[0];
@@ -58,7 +65,7 @@ int main(int argc, char **argv) {
   Backend_free(backend);
 
 }
- 
+
 void list_articles() {
 
   // Get topics
