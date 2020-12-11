@@ -5,7 +5,7 @@
 
 AC_PREREQ([2.69])
 AC_INIT([Biblio], [0.5], [tylerwayne3@gmail.com])
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE([subdir-objects])
 
 LT_PREREQ([2.2.])
 LT_INIT([dlopen])
