@@ -4,13 +4,17 @@ files="\
 aclocal.m4
 autom4te.cache
 compile
+config.guess
 config.h
 config.h.in
 config.log
 config.status
+config.sub
 configure
 depcomp
 install-sh
+libtool
+ltmain.sh
 Makefile
 Makefile.in
 missing
@@ -19,13 +23,20 @@ src/Makefile
 src/Makefile.in
 src/.deps
 src/*.o
+lib/Makefile
+lib/Makefile.in
+lib/.deps
+lib/.libs
+lib/*.la
+lib/*.lo
+lib/*.o
 test-driver
-tests/Makefile
-tests/Makefile.in
-tests/*.o
-tests/*.log
-tests/*.trs
-tests/.deps
+test/Makefile
+test/Makefile.in
+test/*.o
+test/*.log
+test/*.trs
+test/.deps
 "
 
 for f in "$files"; do rm -rf $f; done

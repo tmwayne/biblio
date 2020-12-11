@@ -134,8 +134,6 @@ void register_plugin(Registry registry, char *plugin_path) {
 
   register_backend(registry, plugin_path);
 
-  printf("Registered backend!\n");
-
   dlclose(dlhandle);
 
 }

@@ -8,7 +8,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h> // strlen, strncmp
+#include <string.h> 
 #include "argparse.h"
 #include "registry.h"
 #include "backend.h"
@@ -26,7 +26,6 @@ static int is_string_match(char *str, char *target) {
 
 }
 
-static Registry backend_registry;
 static Backend backend;
 static Frontend frontend;
 
@@ -39,7 +38,7 @@ int main(int argc, char **argv) {
   argp_parse(&argp, argc, argv, 0, 0, &arguments);
 
   // Register backends
-  backend_registry = Registry_init("file", NULL, (void *(*)()) 0);
+  Registry backend_registry = Registry_init("file", NULL, (void *(*)()) 0);
   load_plugins(backend_registry, "plugins");
 
   // Initialize backend and frontend
