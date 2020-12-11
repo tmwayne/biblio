@@ -43,7 +43,7 @@ char *console_pick_topic(Dataframe topics, void *args) {
   // Variables
   char buf[11];
   int selection;
-  char *topic;
+  char *topic = NULL;
 
   // Print topics
   printf("Found the following topics\n");
@@ -74,7 +74,7 @@ int console_pick_article(Dataframe articles, char *topic, void *args) {
   // Variables
   char buf[11];
   int selection;
-  int article_id;
+  int article_id = 0;
 
   // List articles
   printf("\nFound %d articles on %s\n", Dataframe_nrows(articles), topic);
@@ -108,13 +108,9 @@ int console_pick_article(Dataframe articles, char *topic, void *args) {
 
   // Prompt user to mark as read
   printf("\nMark article as read? ");
-  if (read_input(buf, sizeof(buf))) {
-    if (strncmp(buf, "y", 1) == 0) {
+  if (read_input(buf, sizeof(buf)))
+    if (strncmp(buf, "y", 1) == 0)
       article_id = atoi(Dataframe_getval(articles, selection, 0));
-    } else {
-      article_id = 0;
-    }
-  }
 
   return article_id;
 

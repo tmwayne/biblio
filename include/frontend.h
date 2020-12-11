@@ -15,8 +15,8 @@
 #ifndef FRONTEND_INCLUDED
 #define FRONTEND_INCLUDED
 
-#define T Frontend
-typedef struct T *T;
+#define F Frontend
+typedef struct F *F;
 
 struct Frontend {
   char    *(*pick_topic)(Dataframe topics, void *args);
@@ -27,8 +27,8 @@ struct Frontend {
   void    *args;
 };
 
-extern T    Frontend_init(char *type);
-extern void Frontend_free(T);
+extern F    Frontend_init(char *type);
+extern void Frontend_free(F);
 
-#undef T
+#undef F
 #endif

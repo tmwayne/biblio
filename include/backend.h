@@ -12,10 +12,10 @@
 #ifndef BACKEND_INCLUDED
 #define BACKEND_INCLUDED
 
-#define T Backend
-typedef struct T *T;
+#define B Backend
+typedef struct B *B;
 
-struct T {
+struct B {
   Dataframe (*get_topics)(void *args);
   Dataframe (*get_articles)(char *topic, void *args);
   void (*mark_article)(int article_id, void *args);
@@ -25,23 +25,8 @@ struct T {
   void *args;
 };
 
-extern T    Backend_init(char *type);
-extern void Backend_free(T);
+extern B    Backend_init(char *type);
+extern void Backend_free(B);
 
-#define R Registry
-typedef struct R *R;
-
-struct R {
-  R next;
-  char *type;
-  T (*Backend_init)();
-};
-
-extern R    Registry_init(char *type, T (*Backend_init)());
-extern R    Registry_add(R, char *type, T (*Backend_init)());
-extern R    Registry_find(R, char *type);
-extern void Registry_free(R);
-
-#undef R
-#undef T
+#undef B
 #endif
