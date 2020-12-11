@@ -19,14 +19,73 @@ static int is_string_match(char *str, char *target) {
 
 }
 
+Registry Registry_init(char *type, Backend (*Backend_init)()) {
+
+  Registry entry;
+  entry = malloc(sizeof(*entry));
+
+  entry->next = NULL;
+
+  entry->type = malloc(strlen(type)+1);
+  strncpy(entry->type, type, strlen(type)+1);
+
+  entry->Backend_init = Backend_init;
+
+  return entry;
+
+}
+
+Registry Registry_add(Registry registry, char *type, Backend (*Backend_init)()) {
+  
+  Registry entry = Registry_init(type, Backend_init);
+
+  while (registry->next) registry = registry->next;
+  registry->next = entry;
+
+  return entry;
+}
+
+Registry Registry_find(Registry registry, char *type) {
+
+  while (registry) {
+    if (is_string_match(registry->type, type))
+      break;
+    else
+      registry = registry->next;
+  }
+
+  return registry;
+
+}
+
+void Registry_free(Registry registry) {
+  
+  while (registry) {
+
+    free(registry->type);
+
+    Registry next = registry->next;
+    free(registry);
+    registry = next;
+
+  }
+
+}
+
 Backend Backend_init(char *type) {
 
-  if (is_string_match(type, "postgres"))
-    return psql_backend_init();
+  Registry backend_registry;
+  backend_registry = Registry_init("postgres", psql_backend_init);
+
+  Registry entry;
+  if ((entry = Registry_find(backend_registry, type)))
+    return entry->Backend_init();
   else {
-    fprintf(stderr, "Backend type not supported\n");
+    fprintf(stderr, "Failed to find backend\n");
     exit(EXIT_FAILURE);
   }
+
+  Registry_free(backend_registry);
 
 }
 
@@ -36,6 +95,7 @@ void Backend_free(Backend backend) {
     fprintf(stderr, "Can't free NULL pointer\n");
     exit(EXIT_FAILURE);
   }
+
   backend->free(backend->args);
   free(backend);
 
