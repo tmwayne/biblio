@@ -22,6 +22,18 @@ static int is_string_match(char *str, char *target) {
 
 }
 
+static int is_ext_match(char *path, char *ext) {
+
+  int path_len = strlen(path);
+  int ext_len = strlen(ext);
+
+  if (path && ext && ext_len > path_len)
+    return 0;
+  else 
+    return strcmp(path + (path_len - ext_len), ext) ? 0 : 1;
+  
+}
+
 Registry Registry_init(char *type, char *plugin_path, void *(*init)()) {
 
   Registry entry;
@@ -99,7 +111,8 @@ void load_plugins(Registry registry, char *plugin_dir) {
   if (d) {
 
     while ((dir = readdir(d)) != NULL) {
-      if (strstr(dir->d_name, ".so")) {
+      // if (strstr(dir->d_name, ".so")) {
+      if (is_ext_match(dir->d_name, ".so")) {
         char *path = realpath(dir->d_name, NULL);
         register_plugin(registry, path);
       }
