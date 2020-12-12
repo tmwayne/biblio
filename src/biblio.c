@@ -15,6 +15,10 @@
 #include "dataframe.h"
 #include "frontend-console.h"
 
+#define PLUGIN_DIR "/home/tyler/.local/lib/biblio/plugin/backend"
+#define DEFAULT_BACKEND "postgres"
+#define DEFAULT_FRONTEND "console"
+
 void list_articles();
 void add_article();
 void export_raw();
@@ -32,14 +36,14 @@ static Frontend frontend;
 int main(int argc, char **argv) {
 
   struct arguments arguments;
-  arguments.backend = "postgres";
-  arguments.frontend = "console";
+  arguments.backend = DEFAULT_BACKEND;
+  arguments.frontend = DEFAULT_FRONTEND;
 
   argp_parse(&argp, argc, argv, 0, 0, &arguments);
 
   // Register backends
   Registry backend_registry = Registry_init("file", NULL, (void *(*)()) 0);
-  load_plugins(backend_registry, "plugins");
+  load_plugins(backend_registry, PLUGIN_DIR);
 
   // Initialize backend and frontend
   backend = Backend_init(backend_registry, arguments.backend);

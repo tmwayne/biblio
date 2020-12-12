@@ -1,6 +1,4 @@
-# this is used to override the rule prohibiting pkglibexec
-# being used with LTLIBRARIES
-backendplugindir = $(pkglibexecdir)/plugin
+backendplugindir = $(pkglibdir)/plugin/backend
 backendplugin_LTLIBRARIES = libbackendpsql.la
 libbackendpsql_la_SOURCES = backend-psql.c \
 	../src/dataframe.c \
