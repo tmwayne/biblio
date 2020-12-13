@@ -5,6 +5,8 @@ biblio_SOURCES = biblio.c \
 	backend.c \
 	registry.c \
 	dataframe.c \
-	article.c
+	article.c \
+	configparse.c \
+	dict.c
 biblio_CPPFLAGS = -I$(top_srcdir)/include
 biblio_LDFLAGS = -ldl -lpq

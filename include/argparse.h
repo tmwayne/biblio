@@ -15,9 +15,10 @@ const char* argp_program_bug_address = "<tylerwayne3@gmail.com>";
 
 // This structure is used by main to communicate with parse_opt.
 struct arguments {
-  char *args[1];      // Positional argument
+  char *args[1];
   char *backend;
   char *frontend;
+  char *plugin_dir;
   // int  without;       // Optional argument without value
 };
 
@@ -28,6 +29,7 @@ struct arguments {
 static struct argp_option options[] = {
   {"backend", 'b', "type", 0, "Type of backend holding data"},
   {"frontend", 'f', "type", 0, "Type of frontend"},
+  {"plugin_dir", 'p', "dir", 0, "Directory with plugins"},
   // {"without-value", 'b', 0, 0, "Optional argument without value"},
   {0}
 };
@@ -45,6 +47,9 @@ static error_t parse_opt(int key, char* arg, struct argp_state* state) {
       break;
     case 'f':
       arguments->frontend = arg;
+      break;
+    case 'p':
+      arguments->plugin_dir = arg;
       break;
     case ARGP_KEY_ARG:
       if (state->arg_num >= 1)
