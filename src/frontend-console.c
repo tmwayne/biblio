@@ -102,14 +102,13 @@ int console_pick_article(Dataframe articles, char *topic, void *args) {
   // List article source
   char *source = Dataframe_getval(articles, selection, 3);
   if (strlen(source)) {
-    printf("\nOpen source in Firefox? ");
+    printf("Source: %s\n", source);
+    printf("\nOpen in Firefox? ");
     if (read_input(buf, sizeof(buf))) {
       if (strncasecmp(buf, "y", 1) == 0) {
         snprintf(buf, sizeof(buf), "firefox %s", source);
-        printf(buf);
         system(buf);
-      } else
-        printf("Source: %s\n", source);
+      }
     }
   } else
     printf("No source listed\n");
