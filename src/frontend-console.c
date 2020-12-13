@@ -41,7 +41,7 @@ Frontend console_frontend_init() {
 char *console_pick_topic(Dataframe topics, void *args) {
 
   // Variables
-  char buf[11];
+  char buf[256];
   int selection;
   char *topic = NULL;
 
@@ -72,7 +72,7 @@ char *console_pick_topic(Dataframe topics, void *args) {
 int console_pick_article(Dataframe articles, char *topic, void *args) {
 
   // Variables
-  char buf[11];
+  char buf[256];
   int selection;
   int article_id = 0;
 
@@ -101,15 +101,23 @@ int console_pick_article(Dataframe articles, char *topic, void *args) {
   
   // List article source
   char *source = Dataframe_getval(articles, selection, 3);
-  if (strlen(source))
-    printf("Source: %s\n", source);
-  else
+  if (strlen(source)) {
+    printf("\nOpen source in Firefox? ");
+    if (read_input(buf, sizeof(buf))) {
+      if (strncasecmp(buf, "y", 1) == 0) {
+        snprintf(buf, sizeof(buf), "firefox %s", source);
+        printf(buf);
+        system(buf);
+      } else
+        printf("Source: %s\n", source);
+    }
+  } else
     printf("No source listed\n");
 
   // Prompt user to mark as read
   printf("\nMark article as read? ");
   if (read_input(buf, sizeof(buf)))
-    if (strncmp(buf, "y", 1) == 0)
+    if (strncasecmp(buf, "y", 1) == 0)
       article_id = atoi(Dataframe_getval(articles, selection, 0));
 
   return article_id;
