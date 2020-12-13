@@ -48,7 +48,7 @@ int main(int argc, char **argv) {
    * 5. Switches and arguments passed to the program
    */
   Dict configs = NULL;
-  configs = Dict_set(configs, "plugin_dir", DEFAULT_PLUGIN_DIR);
+  configs = Dict_set(configs, "plugindir", DEFAULT_PLUGIN_DIR);
   configs = Dict_set(configs, "backend", DEFAULT_BACKEND);
   configs = Dict_set(configs, "frontend", DEFAULT_FRONTEND);
 
@@ -64,7 +64,7 @@ int main(int argc, char **argv) {
   argp_parse(&argp, argc, argv, 0, 0, &arguments);
 
   if (arguments.plugin_dir)
-    configs = Dict_set(configs, "plugin_dir", arguments.plugin_dir);
+    configs = Dict_set(configs, "plugindir", arguments.plugin_dir);
 
   if (arguments.backend)
     configs = Dict_set(configs, "backend", arguments.backend);
@@ -74,8 +74,7 @@ int main(int argc, char **argv) {
 
   // Register backends
   Registry backend_registry = Registry_init("file", NULL, (void *(*)()) 0);
-  load_plugins(backend_registry, arguments.plugin_dir);
-  load_plugins(backend_registry, Dict_get(configs, "plugin_dir"));
+  load_plugins(backend_registry, Dict_get(configs, "plugindir"));
 
   // Initialize backend and frontend
   backend = Backend_init(backend_registry, Dict_get(configs, "backend"));
