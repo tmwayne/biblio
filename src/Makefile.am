@@ -9,4 +9,4 @@ biblio_SOURCES = biblio.c \
 	configparse.c \
 	dict.c
 biblio_CPPFLAGS = -I$(top_srcdir)/include
-biblio_LDFLAGS = -ldl -lpq
+biblio_LDFLAGS = -ldl -lpq -lreadline

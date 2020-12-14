@@ -66,7 +66,8 @@ void psql_backend_free(void *args) {
 Dataframe psql_get_topics(void *args) {
 
   PGconn *conn = (PGconn *) args;
-  PGresult *res = PQexec(conn, "SELECT DISTINCT topic FROM articles");
+  PGresult *res = PQexec(conn,
+    "SELECT DISTINCT topic FROM articles WHERE NOT is_read");
 
   Dataframe topics = Dataframe_from_pgres(res);
   

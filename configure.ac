@@ -19,7 +19,7 @@ AC_PROG_CC
 # Checks for libraries.
 
 # Checks for header files.
-AC_CHECK_HEADERS([stdlib.h dlfcn.h libpq-fe.h])
+AC_CHECK_HEADERS([stdlib.h dlfcn.h libpq-fe.h readline/readline.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 

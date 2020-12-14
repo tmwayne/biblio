@@ -9,18 +9,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <readline/readline.h>
 #include "frontend.h"
 #include "frontend-console.h"
-
-static char *read_input(char *buf, int len) {
-  
-  if(fgets(buf, len, stdin)) {
-    buf[strcspn(buf, "\n")] = '\0';
-    return buf;
-  } else
-    return NULL;
-
-}
 
 Frontend console_frontend_init() {
 
@@ -41,7 +32,7 @@ Frontend console_frontend_init() {
 char *console_pick_topic(Dataframe topics, void *args) {
 
   // Variables
-  char buf[256];
+  char *buf;
   int selection;
   char *topic = NULL;
 
@@ -51,9 +42,7 @@ char *console_pick_topic(Dataframe topics, void *args) {
     printf("%d) %s\n", row, Dataframe_getval(topics, row, 0));
 
   // Prompt user to select topic
-  printf("\nSelect a topic to view articles: ");
-
-  if (read_input(buf, sizeof(buf))) {
+  if ((buf = readline("\nSelect a topic to view articles: "))) {
     if (1 == sscanf(buf, "%d", &selection)) {
       char *val = Dataframe_getval(topics, selection, 0);
       int len = strlen(val)+1;
@@ -63,6 +52,7 @@ char *console_pick_topic(Dataframe topics, void *args) {
       fprintf(stderr, "Invalid selection...\n");
       exit(EXIT_FAILURE); 
     }
+    free(buf);
   }
 
   return topic;
@@ -72,7 +62,7 @@ char *console_pick_topic(Dataframe topics, void *args) {
 int console_pick_article(Dataframe articles, char *topic, void *args) {
 
   // Variables
-  char buf[256];
+  char *buf;
   int selection;
   int article_id = 0;
 
@@ -86,7 +76,7 @@ int console_pick_article(Dataframe articles, char *topic, void *args) {
     printf("%d) ", row);
     if (strlen(title)) {
       printf("\"%s\"", title);
-      if (strlen(author))  printf(" - %s", author);
+      if (strlen(author)) printf(" - %s", author);
     } else {
       printf(source);
     }
@@ -94,30 +84,37 @@ int console_pick_article(Dataframe articles, char *topic, void *args) {
   }
 
   // Prompt user to select article
-  printf("\nSelect article to read: ");
-  if (read_input(buf, sizeof(buf)))
-    if (EOF == sscanf(buf, "%d", &selection))
+  if ((buf = readline("\nSelect article to read: "))) {
+    printf(buf);
+    if (1 != sscanf(buf, "%d", &selection)) {
       fprintf(stderr, "Invalid selection...\n");
-  
+      exit(EXIT_FAILURE);
+    } 
+    free(buf);
+  }
+
   // List article source
   char *source = Dataframe_getval(articles, selection, 3);
   if (strlen(source)) {
     printf("Source: %s\n", source);
-    printf("\nOpen in Firefox? ");
-    if (read_input(buf, sizeof(buf))) {
+    if ((buf = readline("\nOpen in Firefox? "))) {
       if (strncasecmp(buf, "y", 1) == 0) {
-        snprintf(buf, sizeof(buf), "firefox %s", source);
-        system(buf);
+        int len = strlen("firefox ") + strlen(source) + 1;
+        char command[len];
+        snprintf(command, len, "firefox %s", source);
+        system(command);
       }
+      free(buf);
     }
   } else
     printf("No source listed\n");
 
   // Prompt user to mark as read
-  printf("\nMark article as read? ");
-  if (read_input(buf, sizeof(buf)))
+  if ((buf = readline("\nMark article as read? "))) {
     if (strncasecmp(buf, "y", 1) == 0)
       article_id = atoi(Dataframe_getval(articles, selection, 0));
+    free(buf);
+  }
 
   return article_id;
 
@@ -126,25 +123,12 @@ int console_pick_article(Dataframe articles, char *topic, void *args) {
 Article *console_add_article(void *args) {
 
   Article *article = malloc(sizeof(Article));
-  size_t input_size = 256 * sizeof(char);
 
   printf("Enter information for new article:\n");
-
-  printf("Topic: ");
-  article->topic = malloc(input_size);
-  read_input(article->topic, input_size);
-
-  printf("Title: ");
-  article->title = malloc(input_size);
-  read_input(article->title, input_size);
-  
-  printf("Author: ");
-  article->author = malloc(input_size);
-  read_input(article->author, input_size);
-
-  printf("Source: ");
-  article->source = malloc(input_size);
-  read_input(article->source, input_size);
+  article->topic = readline("Topic: ");
+  article->title = readline("Title: ");
+  article->author = readline("Author: ");
+  article->source = readline("Source: ");
 
   return article;
 
