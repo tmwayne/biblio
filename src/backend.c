@@ -11,6 +11,7 @@
 #include <dlfcn.h> // dlopen, dlclose
 #include "registry.h"
 #include "backend.h"
+#include "mem.h"
 
 Backend Backend_init(Registry registry, char *type) {
 
@@ -50,7 +51,7 @@ void Backend_free(Backend backend) {
   if (backend->plugin_handle)
     dlclose(backend->plugin_handle);
 
-  free(backend);
+  FREE(backend);
 
 }
 

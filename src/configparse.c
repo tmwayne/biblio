@@ -12,6 +12,7 @@
 #include <string.h>
 #include <ctype.h>
 #include "dict.h"
+#include "mem.h"
 
 static char *strtrim(char *str, int len) {
 
@@ -67,7 +68,7 @@ Dict load_configs(Dict configs, char *path) {
   }
 
   int buflen = 256;
-  char *buf = malloc(buflen*sizeof(char));
+  char *buf = ALLOC(buflen*sizeof(char));
   int linenum = 0;
 
   while (fgets(buf, buflen, fd)) {

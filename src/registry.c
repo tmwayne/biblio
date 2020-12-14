@@ -14,8 +14,9 @@
 #include <unistd.h> // getcwd, chdir
 #include <dlfcn.h>  // dlopen, dlclose
 #include "registry.h"
+#include "mem.h"
 
-static int is_string_match(char *str, char *target) {
+static int strmatch(char *str, char *target) {
 
   // If strncmp returns 0 then the strings are the same so return 1
   return strncmp(str, target, strlen(target)) ? 0 : 1;
@@ -37,11 +38,11 @@ static int is_ext_match(char *path, char *ext) {
 Registry Registry_init(char *type, char *plugin_path, void *(*init)()) {
 
   Registry entry;
-  entry = malloc(sizeof(*entry));
+  NEW(entry);
 
   entry->next = NULL;
 
-  entry->type = malloc(strlen(type)+1);
+  entry->type = ALLOC(strlen(type)+1);
   strcpy(entry->type, type);
 
   entry->plugin_path = plugin_path;
@@ -65,7 +66,7 @@ Registry Registry_add(Registry registry, char *type, char *plugin_path,
 Registry Registry_find(Registry registry, char *type) {
 
   while (registry) {
-    if (is_string_match(registry->type, type))
+    if (strmatch(registry->type, type))
       break;
     else
       registry = registry->next;
@@ -79,13 +80,13 @@ void Registry_free(Registry registry) {
   
   while (registry) {
 
-    free(registry->type);
+    FREE(registry->type);
 
     if (registry->plugin_path)
-      free(registry->plugin_path);
+      FREE(registry->plugin_path);
 
     Registry next = registry->next;
-    free(registry);
+    FREE(registry);
     registry = next;
 
   }
@@ -111,7 +112,6 @@ void load_plugins(Registry registry, char *plugin_dir) {
   if (d) {
 
     while ((dir = readdir(d)) != NULL) {
-      // if (strstr(dir->d_name, ".so")) {
       if (is_ext_match(dir->d_name, ".so")) {
         char *path = realpath(dir->d_name, NULL);
         register_plugin(registry, path);

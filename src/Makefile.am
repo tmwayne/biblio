@@ -7,6 +7,9 @@ biblio_SOURCES = biblio.c \
 	dataframe.c \
 	article.c \
 	configparse.c \
-	dict.c
+	dict.c \
+	mem.c \
+	assert.c \
+	except.c
 biblio_CPPFLAGS = -I$(top_srcdir)/include
 biblio_LDFLAGS = -ldl -lpq -lreadline

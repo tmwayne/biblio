@@ -12,11 +12,13 @@
 #include <readline/readline.h>
 #include "frontend.h"
 #include "frontend-console.h"
+#include "mem.h"
 
 Frontend console_frontend_init() {
 
  Frontend console_frontend;
- console_frontend = malloc(sizeof(*console_frontend));
+ // console_frontend = malloc(sizeof(*console_frontend));
+ NEW(console_frontend);
 
  console_frontend->pick_topic = console_pick_topic;
  console_frontend->pick_article = console_pick_article;
@@ -46,13 +48,15 @@ char *console_pick_topic(Dataframe topics, void *args) {
     if (1 == sscanf(buf, "%d", &selection)) {
       char *val = Dataframe_getval(topics, selection, 0);
       int len = strlen(val)+1;
-      topic = malloc(len * sizeof(char));
+      // topic = malloc(len * sizeof(char));
+      topic = ALLOC(len * sizeof(char));
       snprintf(topic, len, val);
     } else {
       fprintf(stderr, "Invalid selection...\n");
       exit(EXIT_FAILURE); 
     }
-    free(buf);
+    // free(buf);
+    FREE(buf);
   }
 
   return topic;
@@ -90,7 +94,8 @@ int console_pick_article(Dataframe articles, char *topic, void *args) {
       fprintf(stderr, "Invalid selection...\n");
       exit(EXIT_FAILURE);
     } 
-    free(buf);
+    // free(buf);
+    FREE(buf);
   }
 
   // List article source
@@ -104,7 +109,8 @@ int console_pick_article(Dataframe articles, char *topic, void *args) {
         snprintf(command, len, "firefox %s", source);
         system(command);
       }
-      free(buf);
+      // free(buf);
+      FREE(buf);
     }
   } else
     printf("No source listed\n");
@@ -113,7 +119,8 @@ int console_pick_article(Dataframe articles, char *topic, void *args) {
   if ((buf = readline("\nMark article as read? "))) {
     if (strncasecmp(buf, "y", 1) == 0)
       article_id = atoi(Dataframe_getval(articles, selection, 0));
-    free(buf);
+    // free(buf);
+    FREE(buf);
   }
 
   return article_id;
@@ -122,7 +129,8 @@ int console_pick_article(Dataframe articles, char *topic, void *args) {
 
 Article *console_add_article(void *args) {
 
-  Article *article = malloc(sizeof(Article));
+  // Article *article = malloc(sizeof(Article));
+  Article *article = ALLOC(sizeof(Article));
 
   printf("Enter information for new article:\n");
   article->topic = readline("Topic: ");

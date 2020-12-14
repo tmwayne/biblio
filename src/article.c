@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "article.h"
+#include "mem.h"
 
 void Article_free(Article *article) {
   
@@ -17,10 +18,10 @@ void Article_free(Article *article) {
     exit(EXIT_FAILURE);
   }
 
-  free(article->topic);
-  free(article->title);
-  free(article->author);
-  free(article->source);
-  free(article);
+  FREE(article->topic);
+  FREE(article->title);
+  FREE(article->author);
+  FREE(article->source);
+  FREE(article);
 
 }

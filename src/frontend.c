@@ -11,8 +11,9 @@
 #include <string.h>
 #include "frontend.h"
 #include "frontend-console.h"
+#include "mem.h"
 
-static int is_string_match(char *str, char *target) {
+static int strmatch(char *str, char *target) {
 
   // If strncmp returns 0 then the strings are the same so return 1
   return strncmp(str, target, strlen(target)) ? 0 : 1;
@@ -21,7 +22,7 @@ static int is_string_match(char *str, char *target) {
 
 Frontend Frontend_init(char *type) {
 
-  if (is_string_match(type, "console"))
+  if (strmatch(type, "console"))
     return console_frontend_init();
   else {
     fprintf(stderr, "Frontend type not supported\n");
@@ -38,7 +39,7 @@ void Frontend_free(Frontend frontend) {
   }
 
   frontend->free(frontend->args);
-  free(frontend);
+  FREE(frontend);
 
 }
 

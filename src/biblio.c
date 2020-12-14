@@ -16,6 +16,7 @@
 #include "dataframe.h"
 #include "dict.h"
 #include "frontend-console.h"
+#include "mem.h"
 
 #define DEFAULT_USER_RC_PATH "/home/tyler/.config/bibliorc"
 #define DEFAULT_PLUGIN_DIR "/home/tyler/.local/lib/biblio/plugin/backend"
@@ -121,7 +122,7 @@ void list_articles() {
 
   Dataframe_free(topics);
   Dataframe_free(articles);
-  free(topic);
+  FREE(topic);
 
 }
 

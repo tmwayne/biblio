@@ -11,6 +11,7 @@
 #include <string.h>
 #include <libpq-fe.h>
 #include "dataframe.h"
+#include "mem.h"
 
 #define T Dataframe
 
@@ -31,23 +32,23 @@ T Dataframe_from_pgres(PGresult *res) {
   int header_len = 32;
   
   T out;
-  out = malloc(sizeof(*out));
+  NEW(out);
 
   out->nrows = nrows;
   out->ncols = ncols;
-  out->columns = malloc(out->ncols * sizeof(Column));
-  out->headers = malloc(out->ncols * sizeof(char *));
+  out->columns = ALLOC(out->ncols * sizeof(Column));
+  out->headers = ALLOC(out->ncols * sizeof(char *));
 
   for (int col=0; col<ncols; col++) {
     
-    out->columns[col] = malloc(nrows * sizeof(char *));
-    out->headers[col] = malloc(header_len * sizeof(char));
+    out->columns[col] = ALLOC(nrows * sizeof(char *));
+    out->headers[col] = ALLOC(header_len * sizeof(char));
     snprintf(out->headers[col], header_len, "%s", PQfname(res, col));
 
     for (int row=0; row<nrows; row++) {
       char *val = PQgetvalue(res, row, col);
       int len = strlen(val) + 1;
-      out->columns[col][row] = malloc(len * sizeof(char));
+      out->columns[col][row] = ALLOC(len * sizeof(char));
       snprintf(out->columns[col][row], len, "%s", val);
     }
 
@@ -83,14 +84,14 @@ void Dataframe_free(T df) {
   for (int col=0; col<ncols; col++) {
 
     for (int row=0; row<nrows; row++)
-      free(df->columns[col][row]);
+      FREE(df->columns[col][row]);
 
-    free(df->columns[col]);
-    free(df->headers[col]);
+    FREE(df->columns[col]);
+    FREE(df->headers[col]);
   }
 
-  free(df->columns);
-  free(df->headers);
+  FREE(df->columns);
+  FREE(df->headers);
   
 }
   

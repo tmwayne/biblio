@@ -11,6 +11,7 @@
 #include <string.h>
 #include <libpq-fe.h>
 #include "backend-psql.h"
+#include "mem.h"
 
 static char *backend_type = "postgres";
 
@@ -29,7 +30,8 @@ Registry register_backend(Registry registry, char *plugin_path) {
 Backend psql_backend_init() {
 
   Backend psql_backend; 
-  psql_backend = malloc(sizeof(*psql_backend));
+  // psql_backend = malloc(sizeof(*psql_backend));
+  NEW(psql_backend);
 
   psql_backend->get_topics = psql_get_topics;
   psql_backend->get_articles = psql_get_articles;

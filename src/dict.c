@@ -10,13 +10,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include "dict.h"
+#include "mem.h"
 
 static int strmatch(char *str, char *target) {
   return strcasecmp(str, target) ? 0 : 1;
 }
 
 static char *strcopy(const char* original) {
-  char *copy = malloc(strlen(original) + 1);
+  char *copy = ALLOC(strlen(original) + 1);
   return strcpy(copy, original);
 }
 
@@ -29,7 +30,7 @@ typedef struct Dict {
 Dict Dict_new() {
   
   Dict dict;
-  dict = malloc(sizeof(*dict));
+  NEW(dict);
   return dict;
 
 }
@@ -68,11 +69,11 @@ char *Dict_get(Dict dict, char *key) {
 void Dict_free(Dict dict) {
   
   while (dict) {
-    free(dict->key);
-    free(dict->val);
+    FREE(dict->key);
+    FREE(dict->val);
     Dict tmp = dict;
     dict = dict->rest;
-    free(tmp);
+    FREE(tmp);
   }
 
 }
