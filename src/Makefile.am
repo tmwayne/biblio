@@ -1,15 +1,15 @@
 bin_PROGRAMS = biblio
-biblio_SOURCES = biblio.c \
+biblio_SOURCES = article.c \
+	assert.c \
+	backend.c \
+	biblio.c \
+	configparse.c \
+	dataframe.c \
+	dict.c \
+	except.c \
 	frontend-console.c \
 	frontend.c \
-	backend.c \
-	registry.c \
-	dataframe.c \
-	article.c \
-	configparse.c \
-	dict.c \
 	mem.c \
-	assert.c \
-	except.c
+	registry.c
 biblio_CPPFLAGS = -I$(top_srcdir)/include
 biblio_LDFLAGS = -ldl -lpq -lreadline
