@@ -20,7 +20,7 @@ static int strmatch(char *str, char *target) {
 
 }
 
-Frontend Frontend_init(char *type) {
+Frontend_T Frontend_init(char *type) {
 
   if (strmatch(type, "console"))
     return console_frontend_init();
@@ -31,7 +31,7 @@ Frontend Frontend_init(char *type) {
 
 }
 
-void Frontend_free(Frontend frontend) {
+void Frontend_free(Frontend_T frontend) {
   
   if (frontend == NULL) {
     fprintf(stderr, "Can't free NULL pointer\n");
@@ -48,7 +48,7 @@ int main() {
 
   char *type = "console";
 
-  Frontend frontend = Frontend_init(type);
+  Frontend_T frontend = Frontend_init(type);
   Frontend_free(frontend);
 
 }

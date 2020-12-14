@@ -14,9 +14,9 @@
 #include "frontend-console.h"
 #include "mem.h"
 
-Frontend console_frontend_init() {
+Frontend_T console_frontend_init() {
 
- Frontend console_frontend;
+ Frontend_T console_frontend;
  // console_frontend = malloc(sizeof(*console_frontend));
  NEW(console_frontend);
 

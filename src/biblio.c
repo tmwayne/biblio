@@ -34,8 +34,8 @@ static int strmatch(char *str, char *target) {
 
 }
 
-static Backend backend;
-static Frontend frontend;
+static Backend_T backend;
+static Frontend_T frontend;
 
 int main(int argc, char **argv) {
 

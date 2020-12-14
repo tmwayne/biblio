@@ -13,7 +13,7 @@
 #ifndef BACKEND_INCLUDED
 #define BACKEND_INCLUDED
 
-#define B Backend
+#define B Backend_T
 typedef struct B *B;
 
 struct B {

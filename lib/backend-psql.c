@@ -26,9 +26,9 @@ void register_backend(Registry_T registry, char *plugin_path) {
     (void *(*)()) psql_backend_init);
 }  
 
-Backend psql_backend_init() {
+Backend_T psql_backend_init() {
 
-  Backend psql_backend; 
+  Backend_T psql_backend; 
   // psql_backend = malloc(sizeof(*psql_backend));
   NEW(psql_backend);
 
@@ -177,7 +177,7 @@ void psql_export_raw(void *args) {
 #ifdef BACKEND_PSQL_DEBUG
 int main() {
 
-  Backend backend = psql_backend_init();
+  Backend_T backend = psql_backend_init();
 
   Dataframe topics = backend->get_topics(backend->args);
   Dataframe_free(topics);

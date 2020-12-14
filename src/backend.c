@@ -13,18 +13,18 @@
 #include "backend.h"
 #include "mem.h"
 
-Backend Backend_init(Registry_T registry, char *type) {
+Backend_T Backend_init(Registry_T registry, char *type) {
 
   void *dlhandle;
-  Backend (*backend_init)();
-  Backend backend;
+  Backend_T (*backend_init)();
+  Backend_T backend;
 
   Entry_T entry;
   if ((entry = Registry_get(registry, type))) {
     
     // Open plugin dynamic library if one has been provided
     dlhandle = entry->plugin_path ? dlopen(entry->plugin_path, RTLD_NOW) : NULL;
-    backend_init = (Backend (*)()) entry->init;
+    backend_init = (Backend_T (*)()) entry->init;
     backend = backend_init();
     backend->plugin_handle = dlhandle;
     
@@ -38,7 +38,7 @@ Backend Backend_init(Registry_T registry, char *type) {
 
 }
 
-void Backend_free(Backend backend) {
+void Backend_free(Backend_T backend) {
   
   if (backend == NULL) {
     fprintf(stderr, "Can't free NULL pointer\n");
@@ -60,7 +60,7 @@ int main() {
   char *type = "postgres";
   printf("%s = postgres: %d\n", type, is_string_match(type, "postgres"));
 
-  Backend backend = Backend_init(type);
+  Backend_T backend = Backend_init(type);
   Backend_free(backend);
 
 }

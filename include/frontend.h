@@ -15,10 +15,10 @@
 #ifndef FRONTEND_INCLUDED
 #define FRONTEND_INCLUDED
 
-#define F Frontend
+#define F Frontend_T
 typedef struct F *F;
 
-struct Frontend {
+struct F {
   char    *(*pick_topic)(Dataframe topics, void *args);
   int      (*pick_article)(Dataframe articles, char *topic, void *args);
   Article *(*add_article)(void *args);
