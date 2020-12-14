@@ -73,7 +73,7 @@ int main(int argc, char **argv) {
     Dict_set(configs, "frontend", arguments.frontend);
 
   // Register backends
-  Registry backend_registry = Registry_init("file", NULL, (void *(*)()) 0);
+  Registry_T backend_registry = Registry_new();
   load_plugins(backend_registry, Dict_get(configs, "plugindir"));
 
   // Initialize backend and frontend

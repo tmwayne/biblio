@@ -16,6 +16,13 @@
 #include "registry.h"
 #include "mem.h"
 
+#define R Registry_T
+#define E Entry_T
+
+struct R {
+  E head;
+};
+
 static int strmatch(char *str, char *target) {
 
   // If strncmp returns 0 then the strings are the same so return 1
@@ -23,7 +30,7 @@ static int strmatch(char *str, char *target) {
 
 }
 
-static int is_ext_match(char *path, char *ext) {
+static int extmatch(char *path, char *ext) {
 
   int path_len = strlen(path);
   int ext_len = strlen(ext);
@@ -35,65 +42,54 @@ static int is_ext_match(char *path, char *ext) {
   
 }
 
-Registry Registry_init(char *type, char *plugin_path, void *(*init)()) {
+static char *strcopy(const char* original) {
+  char *copy = ALLOC(strlen(original) + 1);
+  return strcpy(copy, original);
+}
 
-  Registry entry;
+R Registry_new() {
+  R registry;
+  NEW(registry);
+  registry->head = NULL;
+  return registry;
+};
+
+void Registry_add(R registry, char *type, char *plugin_path, void *(*init)()) {
+  E entry;
   NEW(entry);
-
-  entry->next = NULL;
-
-  entry->type = ALLOC(strlen(type)+1);
-  strcpy(entry->type, type);
-
-  entry->plugin_path = plugin_path;
+  
+  entry->type = strcopy(type);
+  entry->plugin_path = strcopy(plugin_path);
   entry->init = init;
 
-  return entry;
-
+  entry->link = registry->head;
+  registry->head = entry;
 }
-
-Registry Registry_add(Registry registry, char *type, char *plugin_path,
-  void *(*init)()) {
   
-  Registry entry = Registry_init(type, plugin_path, init);
 
-  while (registry->next) registry = registry->next;
-  registry->next = entry;
+E Registry_get(R registry, char *type) {
 
-  return entry;
+  for (E entry=registry->head; entry; entry=entry->link)
+    if (strmatch(entry->type, type))
+      return entry;
+
+  return NULL;
 }
 
-Registry Registry_find(Registry registry, char *type) {
+void Registry_free(R *registry) {
+  E entry, link;
 
-  while (registry) {
-    if (strmatch(registry->type, type))
-      break;
-    else
-      registry = registry->next;
+  for (entry=(*registry)->head; entry; entry=link) {
+    link = entry->link;
+    FREE(entry->type);
+    FREE(entry->plugin_path);
+    FREE(entry);
   }
 
-  return registry;
-
+  FREE(*registry);
 }
 
-void Registry_free(Registry registry) {
-  
-  while (registry) {
-
-    FREE(registry->type);
-
-    if (registry->plugin_path)
-      FREE(registry->plugin_path);
-
-    Registry next = registry->next;
-    FREE(registry);
-    registry = next;
-
-  }
-
-}
-
-void load_plugins(Registry registry, char *plugin_dir) {
+void load_plugins(R registry, char *plugin_dir) {
 
   // Save current working directory
   char cwd[PATH_MAX];
@@ -112,7 +108,7 @@ void load_plugins(Registry registry, char *plugin_dir) {
   if (d) {
 
     while ((dir = readdir(d)) != NULL) {
-      if (is_ext_match(dir->d_name, ".so")) {
+      if (extmatch(dir->d_name, ".so")) {
         char *path = realpath(dir->d_name, NULL);
         register_plugin(registry, path);
       }
@@ -124,7 +120,7 @@ void load_plugins(Registry registry, char *plugin_dir) {
 
 }
 
-void register_plugin(Registry registry, char *plugin_path) {
+void register_plugin(R registry, char *plugin_path) {
   
   void *dlhandle;
   char *error;
@@ -137,8 +133,7 @@ void register_plugin(Registry registry, char *plugin_path) {
 
   dlerror(); // clear any existing error
 
-  Registry (*register_backend)(Registry, char *) = \
-    dlsym(dlhandle, "register_backend");
+  void (*register_backend)(R, char *) = dlsym(dlhandle, "register_backend");
 
   if ((error = dlerror()) != NULL) {
     fprintf(stderr, "%s\n", error);

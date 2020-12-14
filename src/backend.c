@@ -13,15 +13,14 @@
 #include "backend.h"
 #include "mem.h"
 
-Backend Backend_init(Registry registry, char *type) {
+Backend Backend_init(Registry_T registry, char *type) {
 
   void *dlhandle;
   Backend (*backend_init)();
   Backend backend;
 
-
-  Registry entry;
-  if ((entry = Registry_find(registry, type))) {
+  Entry_T entry;
+  if ((entry = Registry_get(registry, type))) {
     
     // Open plugin dynamic library if one has been provided
     dlhandle = entry->plugin_path ? dlopen(entry->plugin_path, RTLD_NOW) : NULL;
@@ -35,7 +34,7 @@ Backend Backend_init(Registry registry, char *type) {
     exit(EXIT_FAILURE);
   }
 
-  Registry_free(registry);
+  Registry_free(&registry);
 
 }
 

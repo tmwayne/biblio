@@ -58,9 +58,8 @@ void Dict_set(D dict, char *key, char *val) {
 }
 
 char *Dict_get(D dict, char *key) {
-  Elem_T elem;
 
-  for (elem=dict->head; elem; elem=elem->link)
+  for (Elem_T elem=dict->head; elem; elem=elem->link)
     if (strmatch(elem->key, key))
       return elem->val;
 
@@ -80,9 +79,7 @@ void Dict_free(D *dict) {
 }
 
 void Dict_dump(D dict) {
-  Elem_T elem;
-
-  for (elem=dict->head; elem; elem=elem->link)
+  for (Elem_T elem=dict->head; elem; elem=elem->link)
     printf("Key: %s, Val: %s\n", elem->key, elem->val);
 }
 

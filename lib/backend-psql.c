@@ -20,11 +20,10 @@ static void exit_nicely(PGconn *conn) {
   exit(EXIT_FAILURE);
 }
 
-Registry register_backend(Registry registry, char *plugin_path) {
+void register_backend(Registry_T registry, char *plugin_path) {
 
-  return Registry_add(registry, backend_type, plugin_path,
+  Registry_add(registry, backend_type, plugin_path,
     (void *(*)()) psql_backend_init);
-
 }  
 
 Backend psql_backend_init() {

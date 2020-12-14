@@ -27,7 +27,7 @@ struct B {
   void *args;
 };
 
-extern B    Backend_init(Registry, char *type);
+extern B    Backend_init(Registry_T, char *type);
 extern void Backend_free(B);
 
 #undef B
