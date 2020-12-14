@@ -89,7 +89,6 @@ int console_pick_article(Dataframe articles, char *topic, void *args) {
 
   // Prompt user to select article
   if ((buf = readline("\nSelect article to read: "))) {
-    printf(buf);
     if (1 != sscanf(buf, "%d", &selection)) {
       fprintf(stderr, "Invalid selection...\n");
       exit(EXIT_FAILURE);
