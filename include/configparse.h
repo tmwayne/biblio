@@ -12,6 +12,6 @@
 #ifndef CONFIGPARSE_INCLUDED
 #define CONFIGPARSE_INCLUDED
 
-Dict load_configs(Dict configs, char *path);
+Dict_T load_configs(Dict_T configs, char *path);
 
 #endif

@@ -1,9 +1,9 @@
 //
 // -----------------------------------------------------------------------------
-// read-config.c
+// dict.c
 // -----------------------------------------------------------------------------
 //
-// Read configuration file
+// Dictionary data class to hold key value pairs, used for Registry
 //
 
 #include <stdio.h>
@@ -11,6 +11,18 @@
 #include <string.h>
 #include "dict.h"
 #include "mem.h"
+
+#define D Dict_T
+
+typedef struct Elem_T {
+  char *key;
+  char *val;
+  struct Elem_T *link;
+} *Elem_T;
+
+struct D {
+  Elem_T head;
+};
 
 static int strmatch(char *str, char *target) {
   return strcasecmp(str, target) ? 0 : 1;
@@ -21,90 +33,74 @@ static char *strcopy(const char* original) {
   return strcpy(copy, original);
 }
 
-typedef struct Dict {
-  struct Dict *rest;
-  char *key;
-  char *val;
-} *Dict;
-
-Dict Dict_new() {
-  
-  Dict dict;
+D Dict_new() {
+  D dict;
   NEW(dict);
+  dict->head = NULL;
   return dict;
-
 }
 
-Dict Dict_set(Dict dict, char *key, char *val) {
+void Dict_set(D dict, char *key, char *val) {
+  Elem_T elem;
 
-  Dict head = dict;
-  while (dict) {
-    if (strmatch(dict->key, key)) {
-      dict->val = strcopy(val);
-      return head;
-    } else
-      dict = dict->rest;
+  for (elem=dict->head; elem; elem=elem->link) {
+    if (strmatch(elem->key, key)) {
+      elem->val = strcopy(val);
+      return;
+    }
   }
 
-  Dict elem = Dict_new();
+  NEW(elem);
   elem->key = strcopy(key);
   elem->val = strcopy(val);
-  elem->rest = head;
-
-  return elem;
-
+  elem->link = dict->head;
+  dict->head = elem;
 }
 
-char *Dict_get(Dict dict, char *key) {
+char *Dict_get(D dict, char *key) {
+  Elem_T elem;
 
-  while (dict) {
-    if (strmatch(dict->key, key)) return dict->val;
-    dict = dict->rest;
-  }
+  for (elem=dict->head; elem; elem=elem->link)
+    if (strmatch(elem->key, key))
+      return elem->val;
 
   return NULL;
-
 }
 
-void Dict_free(Dict dict) {
-  
-  while (dict) {
-    FREE(dict->key);
-    FREE(dict->val);
-    Dict tmp = dict;
-    dict = dict->rest;
-    FREE(tmp);
-  }
+void Dict_free(D *dict) {
+  Elem_T elem, link;
 
+  for (elem=(*dict)->head; elem; elem=link) {
+    link = elem->link;
+    FREE(elem->key);
+    FREE(elem->val);
+    FREE(elem);
+  }
+  FREE(*dict);
 }
 
-void Dict_print(Dict dict) {
+void Dict_dump(D dict) {
+  Elem_T elem;
 
-  while (dict) {
-    printf("Key: %s, Val: %s\n", dict->key, dict->val);
-    dict = dict->rest;
-  }
-
+  for (elem=dict->head; elem; elem=elem->link)
+    printf("Key: %s, Val: %s\n", elem->key, elem->val);
 }
 
 #ifdef DICT_DEBUG
-int main(int argc, char **argv) {
+int main() {
 
-  if (argc != 2) {
-    fprintf(stderr, "Usage: %s file\n", argv[0]);
-    exit(EXIT_FAILURE);
-  }
+  char *key = "this";
 
-  char *config_path = argv[1];
-
-  // Dict configs = NULL;
-  // configs = load_configs(configs, config_path);
+  D dict = Dict_new();
+  Dict_set(dict, key, "that");
   
-  Dict configs = load_configs(NULL, config_path);
+  printf("Value of %s is: %s\n", key, Dict_get(dict, key));
 
-  printf("Value of DIR is %s\n", Dict_get(configs, "dir"));
+  Dict_set(dict, "this", "dog");
+  printf("Value of %s is now: %s\n", key, Dict_get(dict, key)); 
 
-  Dict_free(configs);
+  Dict_dump(dict);
+  Dict_free(&dict);
 
 }
 #endif

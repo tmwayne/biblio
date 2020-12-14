@@ -23,7 +23,6 @@
 #define DEFAULT_BACKEND "postgres"
 #define DEFAULT_FRONTEND "console"
 
-Dict load_configs(Dict, char *);
 void list_articles();
 void add_article();
 void export_raw();
@@ -48,13 +47,13 @@ int main(int argc, char **argv) {
    * 4. User-set environment variables
    * 5. Switches and arguments passed to the program
    */
-  Dict configs = NULL;
-  configs = Dict_set(configs, "plugindir", DEFAULT_PLUGIN_DIR);
-  configs = Dict_set(configs, "backend", DEFAULT_BACKEND);
-  configs = Dict_set(configs, "frontend", DEFAULT_FRONTEND);
+  Dict_T configs = Dict_new();
+  Dict_set(configs, "plugindir", DEFAULT_PLUGIN_DIR);
+  Dict_set(configs, "backend", DEFAULT_BACKEND);
+  Dict_set(configs, "frontend", DEFAULT_FRONTEND);
 
   // 3. Run-control files (dotfiles) in the user's home directory
-  configs = load_configs(configs, DEFAULT_USER_RC_PATH);
+  load_configs(configs, DEFAULT_USER_RC_PATH);
 
   // 4. User-set environment variables
 
@@ -65,13 +64,13 @@ int main(int argc, char **argv) {
   argp_parse(&argp, argc, argv, 0, 0, &arguments);
 
   if (arguments.plugin_dir)
-    configs = Dict_set(configs, "plugindir", arguments.plugin_dir);
+    Dict_set(configs, "plugindir", arguments.plugin_dir);
 
   if (arguments.backend)
-    configs = Dict_set(configs, "backend", arguments.backend);
+    Dict_set(configs, "backend", arguments.backend);
 
   if (arguments.frontend)
-    configs = Dict_set(configs, "frontend", arguments.frontend);
+    Dict_set(configs, "frontend", arguments.frontend);
 
   // Register backends
   Registry backend_registry = Registry_init("file", NULL, (void *(*)()) 0);

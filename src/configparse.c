@@ -59,7 +59,7 @@ static int parse_line(char *line, char **key, char **val) {
 
 }
 
-Dict load_configs(Dict configs, char *path) {
+void load_configs(Dict_T configs, char *path) {
 
   FILE* fd = fopen(path, "r");
   if (!fd) {
@@ -81,18 +81,16 @@ Dict load_configs(Dict configs, char *path) {
       fprintf(stderr, "Synax error, lineno %d\n", linenum);
       exit(EXIT_FAILURE);
     } else if (exit_code == 1)
-      configs = Dict_set(configs, key, val);
+      Dict_set(configs, key, val);
 
     linenum++;
 
   }
 
-  return configs;
-
 }
    
 #ifdef CONFIG_DEBUG
-void Dict_print(Dict);
+void Dict_print(Dict_T);
 
 int main(int argc, char **argv) {
 
@@ -101,8 +99,8 @@ int main(int argc, char **argv) {
     exit(EXIT_FAILURE);
   }
 
-  Dict configs = NULL;
-  configs = load_configs(configs, argv[1]);
+  Dict_T configs = Dict_new();
+  load_configs(configs, argv[1]);
   
   Dict_print(configs);
 

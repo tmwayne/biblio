@@ -22,6 +22,15 @@ struct R {
   void *(*init)();
 };
 
+// struct R {
+  // struct elem {
+    // char *type;
+    // char *plugin_path;
+    // void *(*init)();
+    // struct elem *link;
+  // } *head;
+// };
+
 extern R    Registry_init(char *type, char *plugin_path, void *(*init)());
 extern R    Registry_add(R, char *type, char *plugin_path, void *(*init)());
 extern R    Registry_find(R, char *type);
