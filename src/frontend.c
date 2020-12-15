@@ -8,17 +8,10 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include "common-string.h"
 #include "frontend.h"
 #include "frontend-console.h"
 #include "mem.h"
-
-static int strmatch(char *str, char *target) {
-
-  // If strncmp returns 0 then the strings are the same so return 1
-  return strncmp(str, target, strlen(target)) ? 0 : 1;
-
-}
 
 Frontend_T Frontend_init(char *type) {
 

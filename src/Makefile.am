@@ -3,6 +3,7 @@ biblio_SOURCES = article.c \
 	assert.c \
 	backend.c \
 	biblio.c \
+	common-string.c \
 	configparse.c \
 	dataframe.c \
 	dict.c \

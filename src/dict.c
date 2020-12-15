@@ -8,7 +8,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include "common-string.h"
 #include "dict.h"
 #include "mem.h"
 
@@ -24,15 +24,6 @@ struct D {
   Elem_T head;
 };
 
-static int strmatch(char *str, char *target) {
-  return strcasecmp(str, target) ? 0 : 1;
-}
-
-static char *strcopy(const char* original) {
-  char *copy = ALLOC(strlen(original) + 1);
-  return strcpy(copy, original);
-}
-
 D Dict_new() {
   D dict;
   NEW(dict);
@@ -45,14 +36,14 @@ void Dict_set(D dict, char *key, char *val) {
 
   for (elem=dict->head; elem; elem=elem->link) {
     if (strmatch(elem->key, key)) {
-      elem->val = strcopy(val);
+      elem->val = strdup(val);
       return;
     }
   }
 
   NEW(elem);
-  elem->key = strcopy(key);
-  elem->val = strcopy(val);
+  elem->key = strdup(key);
+  elem->val = strdup(val);
   elem->link = dict->head;
   dict->head = elem;
 }

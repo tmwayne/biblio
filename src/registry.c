@@ -8,11 +8,11 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <dirent.h> // opendir
 #include <limits.h> // PATH_MAX
 #include <unistd.h> // getcwd, chdir
 #include <dlfcn.h>  // dlopen, dlclose
+#include "common-string.h"
 #include "registry.h"
 #include "mem.h"
 
@@ -22,30 +22,6 @@
 struct R {
   E head;
 };
-
-static int strmatch(char *str, char *target) {
-
-  // If strncmp returns 0 then the strings are the same so return 1
-  return strncmp(str, target, strlen(target)) ? 0 : 1;
-
-}
-
-static int extmatch(char *path, char *ext) {
-
-  int path_len = strlen(path);
-  int ext_len = strlen(ext);
-
-  if (path && ext && ext_len > path_len)
-    return 0;
-  else 
-    return strcmp(path + (path_len - ext_len), ext) ? 0 : 1;
-  
-}
-
-static char *strcopy(const char* original) {
-  char *copy = ALLOC(strlen(original) + 1);
-  return strcpy(copy, original);
-}
 
 R Registry_new() {
   R registry;
@@ -58,8 +34,8 @@ void Registry_add(R registry, char *type, char *plugin_path, void *(*init)()) {
   E entry;
   NEW(entry);
   
-  entry->type = strcopy(type);
-  entry->plugin_path = strcopy(plugin_path);
+  entry->type = strdup(type);
+  entry->plugin_path = strdup(plugin_path);
   entry->init = init;
 
   entry->link = registry->head;

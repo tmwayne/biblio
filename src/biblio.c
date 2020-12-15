@@ -8,7 +8,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h> 
+#include "common-string.h"
 #include "argparse.h"
 #include "configparse.h"
 #include "registry.h"
@@ -26,13 +26,6 @@
 void list_articles();
 void add_article();
 void export_raw();
-
-static int strmatch(char *str, char *target) {
-
-  // If strncmp returns 0 then the strings are the same so return 1
-  return strncmp(str, target, strlen(target)) ? 0 : 1;
-
-}
 
 static Backend_T backend;
 static Frontend_T frontend;

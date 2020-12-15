@@ -3,6 +3,7 @@ noinst_HEADERS = argparse.h \
 	assert.h \
 	backend.h \
 	backend-psql.h \
+	common-string.h \
 	configparse.h \
 	dataframe.h \
 	dict.h \
