@@ -8,19 +8,33 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <dlfcn.h> // dlopen, dlclose
 #include "common-string.h"
 #include "frontend.h"
-#include "frontend-console.h"
 #include "mem.h"
 
-Frontend_T Frontend_init(char *type) {
+Frontend_T Frontend_init(Registry_T registry, char *type) {
 
-  if (strmatch(type, "console"))
-    return console_frontend_init();
-  else {
-    fprintf(stderr, "Frontend type not supported\n");
+  void *dlhandle;
+  Frontend_T (*frontend_init)();
+  Frontend_T frontend;
+
+  Entry_T entry;
+  if ((entry = Registry_get(registry, type))) {
+    
+    // Open plugin dynamic library if one has been provided
+    dlhandle = entry->plugin_path ? dlopen(entry->plugin_path, RTLD_NOW) : NULL;
+    frontend_init = (Frontend_T (*)()) entry->init;
+    frontend = frontend_init();
+    frontend->plugin_handle = dlhandle;
+    
+    return frontend;
+  } else {
+    fprintf(stderr, "Failed to find frontend of type %s\n", type);
     exit(EXIT_FAILURE);
   }
+
+  Registry_free(&registry);
 
 }
 
@@ -32,6 +46,10 @@ void Frontend_free(Frontend_T frontend) {
   }
 
   frontend->free(frontend->args);
+
+  if (frontend->plugin_handle)
+    dlclose(frontend->plugin_handle);
+
   FREE(frontend);
 
 }

@@ -3,16 +3,16 @@
 // psql-backend.h
 // -----------------------------------------------------------------------------
 //
-// PostgreSQL backend for Biblio program
+// PostgreSQL backend for Biblio
 //
+
+#ifndef BACKEND_PSQL_INCLUDED
+#define BACKEND_PSQL_INCLUDED
 
 #include "dataframe.h"
 #include "article.h"
 #include "registry.h"
 #include "backend.h"
-
-#ifndef BACKEND_PSQL_INCLUDED
-#define BACKEND_PSQL_INCLUDED
 
 extern void         register_interface(Registry_T, char *plugin_path);
 extern Backend_T    psql_backend_init();

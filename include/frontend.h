@@ -6,14 +6,16 @@
 // Console based front-end for Biblio
 //
 
+#ifndef FRONTEND_INCLUDED
+#define FRONTEND_INCLUDED
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "registry.h"
 #include "dataframe.h"
 #include "article.h"
 
-#ifndef FRONTEND_INCLUDED
-#define FRONTEND_INCLUDED
 
 #define F Frontend_T
 typedef struct F *F;
@@ -24,10 +26,12 @@ struct F {
   Article_T *(*add_article)(void *args);
   void       (*print_string)(char *string, void *args);
   void       (*free)(void *args);
-  void       *args;
+  void        *plugin_handle;
+  void        *args;
 };
 
-extern F    Frontend_init(char *type);
+extern F    Frontend_init(Registry_T, char *type);
+// extern F    Frontend_init(char *type);
 extern void Frontend_free(F);
 
 #undef F

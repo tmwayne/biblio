@@ -13,9 +13,9 @@
 #include "configparse.h"
 #include "registry.h"
 #include "backend.h"
+#include "frontend.h"
 #include "dataframe.h"
 #include "dict.h"
-#include "frontend-console.h"
 #include "mem.h"
 
 #define DEFAULT_USER_RC_PATH "/home/tyler/.config/bibliorc"
@@ -65,13 +65,17 @@ int main(int argc, char **argv) {
   if (arguments.frontend)
     Dict_set(configs, "frontend", arguments.frontend);
 
-  // Register backends
+  // Load registries
   Registry_T backend_registry = Registry_new();
   load_plugins(backend_registry, pathcat(Dict_get(configs, "plugindir"), "backend"));
+  backend = Backend_init(backend_registry, Dict_get(configs, "backend"));
+
+  Registry_T frontend_registry = Registry_new();
+  load_plugins(frontend_registry, pathcat(Dict_get(configs, "plugindir"), "frontend"));
+  frontend = Frontend_init(frontend_registry, Dict_get(configs, "frontend"));
 
   // Initialize backend and frontend
-  backend = Backend_init(backend_registry, Dict_get(configs, "backend"));
-  frontend = Frontend_init(Dict_get(configs, "frontend"));
+  // frontend = Frontend_init(Dict_get(configs, "frontend"));
 
   char *command = arguments.args[0];
 

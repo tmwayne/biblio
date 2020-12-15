@@ -6,12 +6,12 @@
 // Backend abstract base class for Biblio
 //
 
+#ifndef BACKEND_INCLUDED
+#define BACKEND_INCLUDED
+
 #include "registry.h"
 #include "dataframe.h"
 #include "article.h"
-
-#ifndef BACKEND_INCLUDED
-#define BACKEND_INCLUDED
 
 #define B Backend_T
 typedef struct B *B;

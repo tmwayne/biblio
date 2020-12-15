@@ -29,7 +29,6 @@ void register_interface(Registry_T registry, char *plugin_path) {
 Backend_T psql_backend_init() {
 
   Backend_T psql_backend; 
-  // psql_backend = malloc(sizeof(*psql_backend));
   NEW(psql_backend);
 
   psql_backend->get_topics = psql_get_topics;

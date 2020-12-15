@@ -8,7 +8,6 @@ biblio_SOURCES = article.c \
 	dataframe.c \
 	dict.c \
 	except.c \
-	frontend-console.c \
 	frontend.c \
 	mem.c \
 	registry.c
