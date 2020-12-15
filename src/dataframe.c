@@ -13,86 +13,93 @@
 #include "dataframe.h"
 #include "mem.h"
 
-#define T Dataframe
+#define D Dataframe_T
 
-typedef char ** Column;
+typedef struct Column_T {
+  char *header;
+  struct Column_T *next;  // columns are linked lists
+  char **row;            // rows are arrays
+} *Column_T;
 
-struct T {
-  int nrows;
+struct D {
   int ncols;
-  Column *columns;
-  char **headers;
+  int nrows;
+  Column_T column;
 };
 
+D Dataframe_new() {
+  D df;
+  NEW0(df);
+  return df;
+}
 
-T Dataframe_from_pgres(PGresult *res) {
+void Dataframe_newcol(D df) {
+  Column_T col;
+  NEW0(col);
+
+  col->next = df->column;
+  df->column = col;
+}
+
+void Dataframe_from_pgres(D df, PGresult *res) {
 
   int nrows = PQntuples(res);
   int ncols = PQnfields(res);
-  int header_len = 32;
-  
-  T out;
-  NEW(out);
 
-  out->nrows = nrows;
-  out->ncols = ncols;
-  out->columns = ALLOC(out->ncols * sizeof(Column));
-  out->headers = ALLOC(out->ncols * sizeof(char *));
+  df->ncols = ncols;
+  df->nrows = nrows;
 
-  for (int col=0; col<ncols; col++) {
+  // for (int colnum=0; col_num<ncols; colnum++) {
+  for (--ncols; ncols>=0; ncols--) {
     
-    out->columns[col] = ALLOC(nrows * sizeof(char *));
-    out->headers[col] = ALLOC(header_len * sizeof(char));
-    snprintf(out->headers[col], header_len, "%s", PQfname(res, col));
+    Dataframe_newcol(df);
+    Column_T col = df->column;
+    col->row = CALLOC(nrows, sizeof(char *));
+    col->header = strdup(PQfname(res, ncols));
 
-    for (int row=0; row<nrows; row++) {
-      char *val = PQgetvalue(res, row, col);
-      int len = strlen(val) + 1;
-      out->columns[col][row] = ALLOC(len * sizeof(char));
-      snprintf(out->columns[col][row], len, "%s", val);
-    }
-
+    for (int rownum=0; rownum<nrows; rownum++)
+      col->row[rownum] = strdup(PQgetvalue(res, rownum, ncols));
   }
-
-  return out;
 
 }
 
-int Dataframe_nrows(T df) {
+int Dataframe_nrows(D df) {
 
   return df->nrows;
 
 }
 
-int Dataframe_ncols(T df) {
+int Dataframe_ncols(D df) {
   
   return df->ncols;
 
 }
 
-char *Dataframe_getval(T df, int row, int col) {
-  
-  return df->columns[col][row];
+char *Dataframe_getval(D df, int row, int col) {
+
+  Column_T column = df->column;
+  while (col--)
+    column = column->next;
+
+  char **val = column->row;
+  while (row--)
+    val++;
+
+  return *val;
 
 }
 
-void Dataframe_free(T df) {
+void Dataframe_free(D *df) {
+  Column_T col, next;
 
-  int nrows = df->nrows;
-  int ncols = df->ncols;
-
-  for (int col=0; col<ncols; col++) {
-
-    for (int row=0; row<nrows; row++)
-      FREE(df->columns[col][row]);
-
-    FREE(df->columns[col]);
-    FREE(df->headers[col]);
+  for (col=(*df)->column; col; col=next) {
+    next=col->next; 
+    FREE(col->header);
+    FREE(col->row);
+    FREE(col);
   }
 
-  FREE(df->columns);
-  FREE(df->headers);
-  
+  FREE(*df);
 }
   
 #ifdef DATAFRAME_DEBUG
@@ -114,7 +121,8 @@ int main(int argc, char **argv) {
     exit(1);
   }
 
-  T results = Dataframe_from_pgres(res);
+  D results = Dataframe_new();
+  Dataframe_from_pgres(results, res);
 
   // for (int row=0; row<results->nrows; row++)
       // printf("%-20s %s\n", results->columns[0][row], results->columns[1][row]);

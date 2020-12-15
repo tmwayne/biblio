@@ -9,14 +9,14 @@
 #ifndef ARTICLE_INCLUDED
 #define ARTICLE_INCLUDED
 
-typedef struct Article {
+typedef struct Article_T {
   // int article_id;
   char *topic;
   char *title;
   char *author;
   char *source;
-} Article;
+} Article_T;
 
-extern void Article_free(Article *);
+extern void Article_free(Article_T *);
 
 #endif

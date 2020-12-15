@@ -17,10 +17,10 @@
 typedef struct B *B;
 
 struct B {
-  Dataframe (*get_topics)(void *args);
-  Dataframe (*get_articles)(char *topic, void *args);
+  Dataframe_T (*get_topics)(void *args);
+  Dataframe_T (*get_articles)(char *topic, void *args);
   void (*mark_article)(int article_id, void *args);
-  void (*add_article)(Article *article, void *args);
+  void (*add_article)(Article_T *article, void *args);
   void (*export_raw)(void *args);
   void (*free)(void *args);
   void *plugin_handle;

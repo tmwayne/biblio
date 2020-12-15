@@ -103,13 +103,13 @@ int main(int argc, char **argv) {
 void list_articles() {
 
   // Get topics
-  Dataframe topics = backend->get_topics(backend->args);
+  Dataframe_T topics = backend->get_topics(backend->args);
 
   // Prompt user for topic
   char *topic = frontend->pick_topic(topics, frontend->args);
 
   // Get articles on topic
-  Dataframe articles = backend->get_articles(topic, backend->args);
+  Dataframe_T articles = backend->get_articles(topic, backend->args);
 
   // Select article, print source, prompt to mark as read
   int article_id = frontend->pick_article(articles, topic, frontend->args);
@@ -119,8 +119,8 @@ void list_articles() {
     frontend->print_string("Marked article as read!\n", frontend->args);
   }
 
-  Dataframe_free(topics);
-  Dataframe_free(articles);
+  Dataframe_free(&topics);
+  Dataframe_free(&articles);
   FREE(topic);
 
 }
@@ -128,7 +128,7 @@ void list_articles() {
 void add_article() {
 
   // Prompt user to enter article details
-  Article *article = frontend->add_article(frontend->args);
+  Article_T *article = frontend->add_article(frontend->args);
 
   // Write article to backend
   backend->add_article(article, backend->args);

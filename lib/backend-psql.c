@@ -64,20 +64,21 @@ void psql_backend_free(void *args) {
 
 }
 
-Dataframe psql_get_topics(void *args) {
+Dataframe_T psql_get_topics(void *args) {
 
   PGconn *conn = (PGconn *) args;
   PGresult *res = PQexec(conn,
     "SELECT DISTINCT topic FROM articles WHERE NOT is_read");
 
-  Dataframe topics = Dataframe_from_pgres(res);
+  Dataframe_T topics = Dataframe_new();
+  Dataframe_from_pgres(topics, res);
   
   PQclear(res);
   return topics;
 
 }
 
-Dataframe psql_get_articles(char *topic, void *args) {
+Dataframe_T psql_get_articles(char *topic, void *args) {
 
   PGconn *conn = (PGconn *) args;
   
@@ -93,7 +94,8 @@ Dataframe psql_get_articles(char *topic, void *args) {
     exit_nicely(conn);
   }
 
-  Dataframe articles = Dataframe_from_pgres(res);
+  Dataframe_T articles = Dataframe_new();
+  Dataframe_from_pgres(articles, res);
 
   PQclear(res);
   return articles;
@@ -122,7 +124,7 @@ void psql_mark_article(int article_id, void *args) {
 
 }
 
-void psql_add_article(Article *article, void *args) {
+void psql_add_article(Article_T *article, void *args) {
 
   PGconn *conn = (PGconn *) args;
 
@@ -179,15 +181,15 @@ int main() {
 
   Backend_T backend = psql_backend_init();
 
-  Dataframe topics = backend->get_topics(backend->args);
-  Dataframe_free(topics);
+  Dataframe_T topics = backend->get_topics(backend->args);
+  Dataframe_free(&topics);
 
-  Dataframe articles = backend->get_articles("stats", backend->args);
+  Dataframe_T articles = backend->get_articles("stats", backend->args);
 
   for (int row=0; row < Dataframe_nrows(articles); row++)
     printf("%s\n", Dataframe_getval(articles, row, 3));
 
-  Dataframe_free(articles);
+  Dataframe_free(&articles);
 
   backend->mark_article(57, backend->args);
 

@@ -31,7 +31,7 @@ Frontend_T console_frontend_init() {
 
 }
 
-char *console_pick_topic(Dataframe topics, void *args) {
+char *console_pick_topic(Dataframe_T topics, void *args) {
 
   // Variables
   char *buf;
@@ -63,7 +63,7 @@ char *console_pick_topic(Dataframe topics, void *args) {
 
 }
 
-int console_pick_article(Dataframe articles, char *topic, void *args) {
+int console_pick_article(Dataframe_T articles, char *topic, void *args) {
 
   // Variables
   char *buf;
@@ -126,10 +126,9 @@ int console_pick_article(Dataframe articles, char *topic, void *args) {
 
 }
 
-Article *console_add_article(void *args) {
+Article_T *console_add_article(void *args) {
 
-  // Article *article = malloc(sizeof(Article));
-  Article *article = ALLOC(sizeof(Article));
+  Article_T *article = ALLOC(sizeof(Article_T));
 
   printf("Enter information for new article:\n");
   article->topic = readline("Topic: ");

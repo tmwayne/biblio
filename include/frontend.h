@@ -19,12 +19,12 @@
 typedef struct F *F;
 
 struct F {
-  char    *(*pick_topic)(Dataframe topics, void *args);
-  int      (*pick_article)(Dataframe articles, char *topic, void *args);
-  Article *(*add_article)(void *args);
-  void     (*print_string)(char *string, void *args);
-  void     (*free)(void *args);
-  void    *args;
+  char      *(*pick_topic)(Dataframe_T topics, void *args);
+  int        (*pick_article)(Dataframe_T articles, char *topic, void *args);
+  Article_T *(*add_article)(void *args);
+  void       (*print_string)(char *string, void *args);
+  void       (*free)(void *args);
+  void       *args;
 };
 
 extern F    Frontend_init(char *type);
