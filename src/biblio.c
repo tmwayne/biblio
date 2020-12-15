@@ -19,7 +19,7 @@
 #include "mem.h"
 
 #define DEFAULT_USER_RC_PATH "/home/tyler/.config/bibliorc"
-#define DEFAULT_PLUGIN_DIR "/home/tyler/.local/lib/biblio/plugin/backend"
+#define DEFAULT_PLUGIN_DIR "/home/tyler/.local/lib/biblio/plugin/"
 #define DEFAULT_BACKEND "postgres"
 #define DEFAULT_FRONTEND "console"
 
@@ -67,7 +67,7 @@ int main(int argc, char **argv) {
 
   // Register backends
   Registry_T backend_registry = Registry_new();
-  load_plugins(backend_registry, Dict_get(configs, "plugindir"));
+  load_plugins(backend_registry, pathcat(Dict_get(configs, "plugindir"), "backend"));
 
   // Initialize backend and frontend
   backend = Backend_init(backend_registry, Dict_get(configs, "backend"));

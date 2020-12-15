@@ -5,5 +5,6 @@ libbackendpsql_la_SOURCES = backend-psql.c \
 	../src/registry.c \
 	../src/mem.c \
 	../src/assert.c \
-	../src/except.c
+	../src/except.c \
+	../src/common-string.c
 libbackendpsql_la_CPPFLAGS = -I$(top_srcdir)/include

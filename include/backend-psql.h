@@ -14,7 +14,7 @@
 #ifndef BACKEND_PSQL_INCLUDED
 #define BACKEND_PSQL_INCLUDED
 
-extern void         register_backend(Registry_T, char *plugin_path);
+extern void         register_interface(Registry_T, char *plugin_path);
 extern Backend_T    psql_backend_init();
 extern Dataframe_T  psql_get_topics(void *args);
 extern Dataframe_T  psql_get_articles(char *topic, void *args);

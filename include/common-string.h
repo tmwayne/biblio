@@ -11,7 +11,8 @@
 
 #include <string.h>
 
-extern int strmatch(const char *str, const char *target);
-extern int extmatch(const char *path, const char *ext);
+extern int   strmatch(const char *str, const char *target);
+extern int   extmatch(const char *path, const char *ext);
+extern char *pathcat(char *path1, char *path2);
 
 #endif

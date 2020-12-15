@@ -109,14 +109,14 @@ void register_plugin(R registry, char *plugin_path) {
 
   dlerror(); // clear any existing error
 
-  void (*register_backend)(R, char *) = dlsym(dlhandle, "register_backend");
+  void (*register_interface)(R, char *) = dlsym(dlhandle, "register_interface");
 
   if ((error = dlerror()) != NULL) {
     fprintf(stderr, "%s\n", error);
     exit(EXIT_FAILURE);
   }
 
-  register_backend(registry, plugin_path);
+  register_interface(registry, plugin_path);
 
   dlclose(dlhandle);
 
