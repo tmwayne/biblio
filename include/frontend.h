@@ -16,7 +16,6 @@
 #include "dataframe.h"
 #include "article.h"
 
-
 #define F Frontend_T
 typedef struct F *F;
 
@@ -31,7 +30,6 @@ struct F {
 };
 
 extern F    Frontend_init(Registry_T, char *type);
-// extern F    Frontend_init(char *type);
 extern void Frontend_free(F);
 
 #undef F

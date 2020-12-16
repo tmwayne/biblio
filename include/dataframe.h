@@ -6,10 +6,10 @@
 // DataFrame for holding data with multiple columns
 //
 
-#include <libpq-fe.h>
-
 #ifndef DATAFRAME_INCLUDED
 #define DATAFRAME_INCLUDED
+
+#include <libpq-fe.h>
 
 #define D Dataframe_T
 typedef struct D *D;

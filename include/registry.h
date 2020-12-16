@@ -6,11 +6,11 @@
 // Registry abstract data object to enable plugin architecture for front/backend
 //
 
-#include "dataframe.h"
-#include "article.h"
-
 #ifndef REGISTRY_INCLUDED
 #define REGISTRY_INCLUDED
+
+#include "dataframe.h"
+#include "article.h"
 
 #define R Registry_T
 typedef struct R *R;

@@ -3,23 +3,21 @@
 // mem.h
 // -----------------------------------------------------------------------------
 //
-// Description
+// Robust memory management
 //
 
 #ifndef MEM_INCLUDED
 #define MEM_INCLUDED
+
 #include "except.h"
 
-// Exceptions
 extern const Except_T Mem_Failed;
 
-// Functions
 extern void *Mem_alloc(long nbytes, const char *file, int line);
 extern void *Mem_calloc(long count, long nbytes, const char *file, int line);
-extern void Mem_free(void *ptr, const char *file, int line);
+extern void  Mem_free(void *ptr, const char *file, int line);
 extern void *Mem_resize(void *ptr, long nbytes, const char *file, int line);
 
-// Macros
 #define ALLOC(nbytes) Mem_alloc((nbytes), __FILE__, __LINE__)
 #define CALLOC(count, nbytes) Mem_calloc((count), (nbytes), __FILE__, __LINE__)
 

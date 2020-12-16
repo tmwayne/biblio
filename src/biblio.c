@@ -18,6 +18,8 @@
 #include "dict.h"
 #include "mem.h"
 
+#include "frontend-ncurses.h"
+
 #define DEFAULT_USER_RC_PATH "/home/tyler/.config/bibliorc"
 #define DEFAULT_PLUGIN_DIR "/home/tyler/.local/lib/biblio/plugin/"
 #define DEFAULT_BACKEND "postgres"
