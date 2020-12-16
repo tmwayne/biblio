@@ -28,8 +28,7 @@ void register_interface(Registry_T registry, char *plugin_path) {
 
 Backend_T psql_backend_init() {
 
-  Backend_T psql_backend; 
-  NEW(psql_backend);
+  Backend_T psql_backend = Backend_new();
 
   psql_backend->get_topics = psql_get_topics;
   psql_backend->get_articles = psql_get_articles;
@@ -123,7 +122,7 @@ void psql_mark_article(int article_id, void *args) {
 
 }
 
-void psql_add_article(Article_T *article, void *args) {
+void psql_add_article(Article_T article, void *args) {
 
   PGconn *conn = (PGconn *) args;
 

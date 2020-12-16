@@ -23,8 +23,7 @@ void register_interface(Registry_T registry, char *plugin_path) {
 
 Frontend_T console_frontend_init() {
 
- Frontend_T console_frontend;
- NEW(console_frontend);
+ Frontend_T console_frontend = Frontend_new();
 
  console_frontend->pick_topic = console_pick_topic;
  console_frontend->pick_article = console_pick_article;
@@ -132,9 +131,9 @@ int console_pick_article(Dataframe_T articles, char *topic, void *args) {
 
 }
 
-Article_T *console_add_article(void *args) {
+Article_T console_add_article(void *args) {
 
-  Article_T *article = ALLOC(sizeof(Article_T));
+  Article_T article = Article_new();
 
   printf("Enter information for new article:\n");
   article->topic = readline("Topic: ");

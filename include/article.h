@@ -15,8 +15,9 @@ typedef struct Article_T {
   char *title;
   char *author;
   char *source;
-} Article_T;
+} *Article_T;
 
-extern void Article_free(Article_T *);
+extern Article_T Article_new();
+extern void      Article_free(Article_T *);
 
 #endif

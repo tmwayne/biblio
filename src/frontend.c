@@ -13,6 +13,14 @@
 #include "frontend.h"
 #include "mem.h"
 
+Frontend_T Frontend_new() {
+
+  Frontend_T frontend;
+  NEW0(frontend);
+  return frontend;
+
+}
+
 Frontend_T Frontend_init(Registry_T registry, char *type) {
 
   void *dlhandle;
@@ -20,21 +28,20 @@ Frontend_T Frontend_init(Registry_T registry, char *type) {
   Frontend_T frontend;
 
   Entry_T entry;
-  if ((entry = Registry_get(registry, type))) {
-    
-    // Open plugin dynamic library if one has been provided
-    dlhandle = entry->plugin_path ? dlopen(entry->plugin_path, RTLD_NOW) : NULL;
-    frontend_init = (Frontend_T (*)()) entry->init;
-    frontend = frontend_init();
-    frontend->plugin_handle = dlhandle;
-    
-    return frontend;
-  } else {
+  if (!(entry = Registry_get(registry, type))) {
     fprintf(stderr, "Failed to find frontend of type %s\n", type);
     exit(EXIT_FAILURE);
   }
 
+  // Open plugin dynamic library if one has been provided
+  dlhandle = entry->plugin_path ? dlopen(entry->plugin_path, RTLD_NOW) : NULL;
+  frontend_init = (Frontend_T (*)()) entry->init;
+  frontend = frontend_init();
+  frontend->plugin_handle = dlhandle;
+
   Registry_free(&registry);
+
+  return frontend;
 
 }
 

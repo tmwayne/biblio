@@ -13,6 +13,14 @@
 #include "backend.h"
 #include "mem.h"
 
+Backend_T Backend_new() {
+  
+  Backend_T backend;
+  NEW0(backend);
+  return backend;
+
+}
+
 Backend_T Backend_init(Registry_T registry, char *type) {
 
   void *dlhandle;

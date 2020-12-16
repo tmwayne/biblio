@@ -18,7 +18,7 @@
 #include "dict.h"
 #include "mem.h"
 
-#include "frontend-ncurses.h"
+// #include "frontend-ncurses.h"
 
 #define DEFAULT_USER_RC_PATH "/home/tyler/.config/bibliorc"
 #define DEFAULT_PLUGIN_DIR "/home/tyler/.local/lib/biblio/plugin/"
@@ -67,17 +67,18 @@ int main(int argc, char **argv) {
   if (arguments.frontend)
     Dict_set(configs, "frontend", arguments.frontend);
 
-  // Load registries
+  // Initialize backend
   Registry_T backend_registry = Registry_new();
   load_plugins(backend_registry, pathcat(Dict_get(configs, "plugindir"), "backend"));
   backend = Backend_init(backend_registry, Dict_get(configs, "backend"));
 
+  // Initialize frontend
   Registry_T frontend_registry = Registry_new();
   load_plugins(frontend_registry, pathcat(Dict_get(configs, "plugindir"), "frontend"));
   frontend = Frontend_init(frontend_registry, Dict_get(configs, "frontend"));
 
-  // Initialize backend and frontend
-  // frontend = Frontend_init(Dict_get(configs, "frontend"));
+  // frontend = ncurses_frontend_init();
+
 
   char *command = arguments.args[0];
 
@@ -127,14 +128,14 @@ void list_articles() {
 void add_article() {
 
   // Prompt user to enter article details
-  Article_T *article = frontend->add_article(frontend->args);
+  Article_T article = frontend->add_article(frontend->args);
 
   // Write article to backend
   backend->add_article(article, backend->args);
 
   frontend->print_string("Added article!\n", frontend->args);
 
-  Article_free(article);
+  Article_free(&article);
   
 }
 

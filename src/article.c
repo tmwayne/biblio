@@ -11,6 +11,14 @@
 #include "article.h"
 #include "mem.h"
 
+Article_T Article_new() {
+
+  Article_T article;
+  NEW0(article);
+  return article;
+
+}
+
 void Article_free(Article_T *article) {
   
   if (article == NULL) {
@@ -18,10 +26,10 @@ void Article_free(Article_T *article) {
     exit(EXIT_FAILURE);
   }
 
-  FREE(article->topic);
-  FREE(article->title);
-  FREE(article->author);
-  FREE(article->source);
-  FREE(article);
+  FREE((*article)->topic);
+  FREE((*article)->title);
+  FREE((*article)->author);
+  FREE((*article)->source);
+  FREE(*article);
 
 }
