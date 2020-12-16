@@ -11,26 +11,9 @@
 #include <stdbool.h>
 #include <string.h>
 #include <ctype.h>
+#include "common-string.h"
 #include "dict.h"
 #include "mem.h"
-
-static char *strtrim(char *str, int len) {
-
-  char *start = NULL;
-
-  for (int i=0; str[i] && i<len; i++) {
-    if (!start && !isspace(str[i])) {
-      start = str + i;
-      continue;
-    } else if (start && isspace(str[i])) {
-      str[i] = 0;
-      break;
-    }
-  }
-
-  return start;
-
-}
 
 
 static int parse_line(char *line, char **key, char **val) {
@@ -80,8 +63,10 @@ void load_configs(Dict_T configs, char *path) {
     if (exit_code == 0) {
       fprintf(stderr, "Synax error, lineno %d\n", linenum);
       exit(EXIT_FAILURE);
-    } else if (exit_code == 1)
+    } else if (exit_code == 1) {
+      strlower(key);
       Dict_set(configs, key, val);
+    }
 
     linenum++;
 

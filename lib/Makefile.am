@@ -9,7 +9,7 @@ biblio_backend_psql_la_SOURCES = backend-psql.c \
 	../src/mem.c \
 	../src/registry.c
 biblio_backend_psql_la_CPPFLAGS = -I$(top_srcdir)/include
-biblio_backend_psql_la_LDFLAGS = -module
+biblio_backend_psql_la_LDFLAGS = -module -ldl -lpq
 
 frontendplugindir = $(pkglibdir)/plugin/frontend
 frontendplugin_LTLIBRARIES = biblio_frontend_console.la
@@ -23,4 +23,4 @@ biblio_frontend_console_la_SOURCES = frontend-console.c \
 	../src/mem.c \
 	../src/registry.c
 biblio_frontend_console_la_CPPFLAGS = -I$(top_srcdir)/include
-biblio_frontend_console_la_LDFLAGS = -module
+biblio_frontend_console_la_LDFLAGS = -module -ldl -lreadline

@@ -7,6 +7,7 @@
 //
 
 #include <limits.h>
+#include <ctype.h>
 #include "common-string.h"
 #include "mem.h"
 
@@ -27,6 +28,28 @@ int extmatch(const char *path, const char *ext) {
   else 
     return strcmp(path + (path_len - ext_len), ext) ? 0 : 1;
   
+}
+
+char *strtrim(char *str, int len) {
+
+  char *start = NULL;
+
+  for (int i=0; str[i] && i<len; i++) {
+    if (!start && !isspace(str[i])) {
+      start = str + i;
+      continue;
+    } else if (start && isspace(str[i])) {
+      str[i] = 0;
+      break;
+    }
+  }
+
+  return start;
+
+}
+
+void strlower(char *str) {
+  for ( ; *str; ++str) *str = tolower(*str);
 }
 
 char *pathcat(char *path1, char *path2) {

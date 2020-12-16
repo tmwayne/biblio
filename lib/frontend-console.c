@@ -60,8 +60,7 @@ char *console_pick_topic(Dataframe_T topics, void *args) {
       fprintf(stderr, "Invalid selection...\n");
       exit(EXIT_FAILURE); 
     }
-    // free(buf);
-    FREE(buf);
+    // FREE(buf);
   }
 
   return topic;

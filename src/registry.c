@@ -35,7 +35,7 @@ void Registry_add(R registry, char *type, char *plugin_path, void *(*init)()) {
   NEW(entry);
   
   entry->type = strdup(type);
-  entry->plugin_path = strdup(plugin_path);
+  entry->plugin_path = plugin_path ? strdup(plugin_path) : NULL;
   entry->init = init;
 
   entry->link = registry->head;
