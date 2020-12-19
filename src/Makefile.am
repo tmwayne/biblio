@@ -10,7 +10,6 @@ biblio_SOURCES = article.c \
 	except.c \
 	frontend.c \
 	mem.c \
-	registry.c \
-	frontend-ncurses.c
+	registry.c
 biblio_CPPFLAGS = -I$(top_srcdir)/include
-biblio_LDFLAGS = -ldl -lpq -lncurses
+biblio_LDFLAGS = -ldl -lpq

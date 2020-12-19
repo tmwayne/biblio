@@ -18,8 +18,6 @@
 #include "dict.h"
 #include "mem.h"
 
-#include "frontend-ncurses.h"
-
 #define DEFAULT_USER_RC_PATH "/home/tyler/.config/bibliorc"
 #define DEFAULT_PLUGIN_DIR "/home/tyler/.local/lib/biblio/plugin/"
 #define DEFAULT_BACKEND "postgres"
@@ -75,10 +73,6 @@ int main(int argc, char **argv) {
   // Initialize frontend
   Registry_T frontend_registry = Registry_new();
   load_plugins(frontend_registry, pathcat(Dict_get(configs, "plugindir"), "frontend"));
-
-  // Manually register ncurses frontend
-  Registry_add(frontend_registry, "ncurses", NULL, (void *(*)()) ncurses_frontend_init);
-
   frontend = Frontend_init(frontend_registry, Dict_get(configs, "frontend"));
 
   char *command = arguments.args[0];
