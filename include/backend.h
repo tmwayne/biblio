@@ -29,7 +29,7 @@ struct B {
 
 extern B    Backend_new();
 extern B    Backend_init(Registry_T, char *type);
-extern void Backend_free(B);
+extern void Backend_free(B *);
 
 #undef B
 #endif

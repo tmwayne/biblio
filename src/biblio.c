@@ -90,8 +90,8 @@ int main(int argc, char **argv) {
     fprintf(stderr, "biblio: '%s' is not a biblio command.\n"
       "See 'biblio --help'\n", command);
 
-  Frontend_free(frontend);
-  Backend_free(backend);
+  Frontend_free(&frontend);
+  Backend_free(&backend);
 
 }
 

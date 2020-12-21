@@ -191,7 +191,7 @@ int main() {
 
   backend->mark_article(57, backend->args);
 
-  Backend_free(backend);
+  Backend_free(&backend);
 
 }
 #endif

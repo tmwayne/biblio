@@ -46,19 +46,19 @@ Backend_T Backend_init(Registry_T registry, char *type) {
 
 }
 
-void Backend_free(Backend_T backend) {
+void Backend_free(Backend_T *backend) {
   
   if (backend == NULL) {
     fprintf(stderr, "Can't free NULL pointer\n");
     exit(EXIT_FAILURE);
   }
 
-  backend->free(backend->args);
+  (*backend)->free((*backend)->args);
 
-  if (backend->plugin_handle)
-    dlclose(backend->plugin_handle);
+  if ((*backend)->plugin_handle)
+    dlclose((*backend)->plugin_handle);
 
-  FREE(backend);
+  FREE(*backend);
 
 }
 

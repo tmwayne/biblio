@@ -20,6 +20,8 @@ Article_T Article_new() {
 }
 
 void Article_free(Article_T *article) {
+
+
   
   if (article == NULL) {
     fprintf(stderr, "Can't free NULL pointer\n");

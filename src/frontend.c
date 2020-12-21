@@ -45,19 +45,21 @@ Frontend_T Frontend_init(Registry_T registry, char *type) {
 
 }
 
-void Frontend_free(Frontend_T frontend) {
+void Frontend_free(Frontend_T *frontend) {
+
+  // Frontend_T ft = *frontend;
   
   if (frontend == NULL) {
     fprintf(stderr, "Can't free NULL pointer\n");
     exit(EXIT_FAILURE);
   }
 
-  frontend->free(frontend->args);
+  (*frontend)->free((*frontend)->args);
 
-  if (frontend->plugin_handle)
-    dlclose(frontend->plugin_handle);
+  if ((*frontend)->plugin_handle)
+    dlclose((*frontend)->plugin_handle);
 
-  FREE(frontend);
+  FREE(*frontend);
 
 }
 
@@ -67,7 +69,7 @@ int main() {
   char *type = "console";
 
   Frontend_T frontend = Frontend_init(type);
-  Frontend_free(frontend);
+  Frontend_free(&frontend);
 
 }
 #endif
