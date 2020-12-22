@@ -1,1 +1,1 @@
-SUBDIRS = src lib include test
+SUBDIRS = common include lib src test

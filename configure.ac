@@ -28,9 +28,10 @@ AC_SEARCH_LIBS([dlopen])
 
 AC_CONFIG_FILES([
   Makefile
-  src/Makefile
+  common/Makefile
   lib/Makefile
   include/Makefile
+  src/Makefile
   test/Makefile])
 
 AC_OUTPUT

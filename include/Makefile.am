@@ -9,6 +9,8 @@ noinst_HEADERS = argparse.h \
 	dict.h \
 	except.h \
 	frontend-console.h \
+	frontend-ncurses.h \
 	frontend.h \
 	mem.h \
+	minunit.h \
 	registry.h
