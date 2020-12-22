@@ -283,7 +283,7 @@ void ncurses_print_string(char *str, void *args) {
 
 
   WINDOW *win = (WINDOW *) args;
-  assert(win);
+  // assert(win);
 
   wprintw(win, str);
   refresh();
@@ -292,8 +292,9 @@ void ncurses_print_string(char *str, void *args) {
 
 void ncurses_free(void *args){
 
-  WINDOW *win = (WINDOW *) win;
+  WINDOW *win = (WINDOW *) args;
   assert(win);
+
   delwin(win);
   endwin();
 
