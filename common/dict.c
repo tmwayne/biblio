@@ -3,7 +3,7 @@
 // dict.c
 // -----------------------------------------------------------------------------
 //
-// Dictionary data class to hold key value pairs, used for Registry
+// Tyler Wayne © 2020
 //
 
 #include <stdio.h>
@@ -16,7 +16,7 @@
 
 #define D Dict_T
 
-const Except_T Dict_KeyEmpty = { "Dictionary key is empty" };
+const Except_T Dict_EmptyKey = { "Dictionary key is empty" };
 
 typedef struct Elem_T {
   char *key;
@@ -51,9 +51,9 @@ int Dict_size(D dict) {
 void Dict_set(D dict, char *key, char *val) {
   Elem_T elem;
   
-  assert(dict);
+  assert(dict && key && val);
 
-  if (key == NULL) RAISE(Dict_KeyEmpty);
+  if (*key == '\0') RAISE(Dict_EmptyKey);
 
   for (elem=dict->head; elem; elem=elem->link) {
     if (strmatch(elem->key, key)) {
@@ -71,9 +71,9 @@ void Dict_set(D dict, char *key, char *val) {
 
 char *Dict_get(D dict, char *key) {
 
-  assert(dict);
+  assert(dict && key);
 
-  if (key == NULL) RAISE(Dict_KeyEmpty);
+  if (*key == '\0') RAISE(Dict_EmptyKey);
 
   for (Elem_T elem=dict->head; elem; elem=elem->link)
     if (strmatch(elem->key, key))
