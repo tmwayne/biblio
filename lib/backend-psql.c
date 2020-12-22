@@ -12,6 +12,7 @@
 #include <libpq-fe.h>
 #include "backend-psql.h"
 #include "mem.h"
+#include "assert.h"
 
 static char *backend_type = "postgres";
 
@@ -21,6 +22,8 @@ static void exit_nicely(PGconn *conn) {
 }
 
 void register_interface(Registry_T registry, char *plugin_path) {
+
+  assert(registry && plugin_path);
 
   Registry_add(registry, backend_type, plugin_path,
     (void *(*)()) psql_backend_init);
@@ -53,9 +56,11 @@ Backend_T psql_backend_init() {
 void psql_backend_free(void *args) {
 
   PGconn *conn = (PGconn *) args;
+  assert(conn);
+
   if (PQstatus(conn) != CONNECTION_OK) {
     fprintf(stderr, "Bad connection\n");
-    exit_nicely(conn);
+    exit(EXIT_FAILURE);
   }
 
   PQfinish(conn);
@@ -65,8 +70,14 @@ void psql_backend_free(void *args) {
 Dataframe_T psql_get_topics(void *args) {
 
   PGconn *conn = (PGconn *) args;
+  assert(conn);
+
   PGresult *res = PQexec(conn,
     "SELECT DISTINCT topic FROM articles WHERE NOT is_read");
+  if (PQresultStatus(res) != PGRES_TUPLES_OK) {
+    fprintf(stderr, "No data retrieved\n");
+    exit_nicely(conn);
+  }
 
   Dataframe_T topics = Dataframe_new();
   Dataframe_from_pgres(topics, res);
@@ -79,6 +90,7 @@ Dataframe_T psql_get_topics(void *args) {
 Dataframe_T psql_get_articles(char *topic, void *args) {
 
   PGconn *conn = (PGconn *) args;
+  assert(topic && conn);
   
   const char *ParamValues[1];
   ParamValues[0] = topic;
@@ -103,6 +115,7 @@ Dataframe_T psql_get_articles(char *topic, void *args) {
 void psql_mark_article(int article_id, void *args) {
 
   PGconn *conn = (PGconn *) args;
+  assert(article_id && conn);
 
   const char *ParamValues[1];
   int buf_len = 11;
@@ -125,6 +138,7 @@ void psql_mark_article(int article_id, void *args) {
 void psql_add_article(Article_T article, void *args) {
 
   PGconn *conn = (PGconn *) args;
+  assert(conn);
 
   const char *ParamValues[4];
   ParamValues[0] = article->topic;
@@ -148,10 +162,10 @@ void psql_add_article(Article_T article, void *args) {
 void psql_export_raw(void *args) {
 
   PGconn *conn = (PGconn *) args;
-  PGresult *res;
+  assert(conn);
 
   char *command = "COPY articles TO STDOUT with (FORMAT CSV, DELIMITER '|', HEADER)";
-  res = PQexec(conn, command);
+  PGresult *res = PQexec(conn, command);
   if (PQresultStatus(res) != PGRES_COPY_OUT) {
     fprintf(stderr, "Unable to export data\n");
     exit_nicely(conn);

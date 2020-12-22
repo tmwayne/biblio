@@ -11,11 +11,15 @@
 #include <string.h>
 #include <readline/readline.h>
 #include "frontend-console.h"
+#include "common-string.h"
 #include "mem.h"
+#include "assert.h"
 
 static char *frontend_type = "console";
 
 void register_interface(Registry_T registry, char *plugin_path) {
+
+  assert(registry && plugin_path);
 
   Registry_add(registry, frontend_type, plugin_path,
     (void *(*)()) console_frontend_init);
@@ -38,6 +42,8 @@ Frontend_T console_frontend_init() {
 
 char *console_pick_topic(Dataframe_T topics, void *args) {
 
+  assert(topics);
+
   // Variables
   char *buf;
   int selection;
@@ -53,14 +59,13 @@ char *console_pick_topic(Dataframe_T topics, void *args) {
     if (1 == sscanf(buf, "%d", &selection)) {
       char *val = Dataframe_getval(topics, selection, 0);
       int len = strlen(val)+1;
-      // topic = malloc(len * sizeof(char));
       topic = ALLOC(len * sizeof(char));
       snprintf(topic, len, val);
     } else {
       fprintf(stderr, "Invalid selection...\n");
       exit(EXIT_FAILURE); 
     }
-    // FREE(buf);
+    FREE(buf);
   }
 
   return topic;
@@ -68,6 +73,8 @@ char *console_pick_topic(Dataframe_T topics, void *args) {
 }
 
 int console_pick_article(Dataframe_T articles, char *topic, void *args) {
+
+  assert(articles && topic);
 
   // Variables
   char *buf;
@@ -97,7 +104,6 @@ int console_pick_article(Dataframe_T articles, char *topic, void *args) {
       fprintf(stderr, "Invalid selection...\n");
       exit(EXIT_FAILURE);
     } 
-    // free(buf);
     FREE(buf);
   }
 
@@ -106,23 +112,23 @@ int console_pick_article(Dataframe_T articles, char *topic, void *args) {
   if (strlen(source)) {
     printf("Source: %s\n", source);
     if ((buf = readline("\nOpen in Firefox? "))) {
-      if (strncasecmp(buf, "y", 1) == 0) {
+      // if (strncasecmp(buf, "y", 1) == 0) {
+      if (strmatch(buf, "y")) {
         int len = strlen("firefox ") + strlen(source) + 1;
         char command[len];
         snprintf(command, len, "firefox %s", source);
+        // TODO: switch to exec*() function
         system(command);
       }
-      // free(buf);
       FREE(buf);
     }
-  } else
-    printf("No source listed\n");
+  } else printf("No source listed\n");
 
   // Prompt user to mark as read
   if ((buf = readline("\nMark article as read? "))) {
-    if (strncasecmp(buf, "y", 1) == 0)
+    // if (strncasecmp(buf, "y", 1) == 0)
+    if (strmatch(buf, "y"))
       article_id = atoi(Dataframe_getval(articles, selection, 0));
-    // free(buf);
     FREE(buf);
   }
 

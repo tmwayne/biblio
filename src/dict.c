@@ -11,8 +11,12 @@
 #include "common-string.h"
 #include "dict.h"
 #include "mem.h"
+#include "assert.h"
+#include "except.h"
 
 #define D Dict_T
+
+const Except_T Dict_KeyEmpty = { "Dictionary key is empty" };
 
 typedef struct Elem_T {
   char *key;
@@ -33,6 +37,10 @@ D Dict_new() {
 
 void Dict_set(D dict, char *key, char *val) {
   Elem_T elem;
+  
+  assert(dict);
+
+  if (key == NULL) RAISE(Dict_KeyEmpty);
 
   for (elem=dict->head; elem; elem=elem->link) {
     if (strmatch(elem->key, key)) {
@@ -50,6 +58,10 @@ void Dict_set(D dict, char *key, char *val) {
 
 char *Dict_get(D dict, char *key) {
 
+  assert(dict);
+
+  if (key == NULL) RAISE(Dict_KeyEmpty);
+
   for (Elem_T elem=dict->head; elem; elem=elem->link)
     if (strmatch(elem->key, key))
       return elem->val;
@@ -59,6 +71,8 @@ char *Dict_get(D dict, char *key) {
 
 void Dict_free(D *dict) {
   Elem_T elem, link;
+
+  assert(dict && *dict);
 
   for (elem=(*dict)->head; elem; elem=link) {
     link = elem->link;
@@ -70,6 +84,7 @@ void Dict_free(D *dict) {
 }
 
 void Dict_dump(D dict) {
+  assert(dict);
   for (Elem_T elem=dict->head; elem; elem=elem->link)
     printf("Key: %s, Val: %s\n", elem->key, elem->val);
 }

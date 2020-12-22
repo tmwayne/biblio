@@ -12,6 +12,7 @@
 #include "common-string.h"
 #include "frontend.h"
 #include "mem.h"
+#include "assert.h"
 
 Frontend_T Frontend_new() {
 
@@ -22,6 +23,8 @@ Frontend_T Frontend_new() {
 }
 
 Frontend_T Frontend_init(Registry_T registry, char *type) {
+
+  assert(registry && type);
 
   void *dlhandle;
   Frontend_T (*frontend_init)();
@@ -34,6 +37,7 @@ Frontend_T Frontend_init(Registry_T registry, char *type) {
   }
 
   // Open plugin dynamic library if one has been provided
+  // TODO: check the status of dlopen
   dlhandle = entry->plugin_path ? dlopen(entry->plugin_path, RTLD_NOW) : NULL;
   frontend_init = (Frontend_T (*)()) entry->init;
   frontend = frontend_init();
@@ -46,13 +50,8 @@ Frontend_T Frontend_init(Registry_T registry, char *type) {
 }
 
 void Frontend_free(Frontend_T *frontend) {
-
-  // Frontend_T ft = *frontend;
   
-  if (frontend == NULL) {
-    fprintf(stderr, "Can't free NULL pointer\n");
-    exit(EXIT_FAILURE);
-  }
+  assert(frontend && *frontend);
 
   (*frontend)->free((*frontend)->args);
 

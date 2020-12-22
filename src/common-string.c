@@ -10,8 +10,11 @@
 #include <ctype.h>
 #include "common-string.h"
 #include "mem.h"
+#include "assert.h"
 
 int strmatch(const char *str, const char *target) {
+
+  assert(str && target);
 
   // If strncmp returns 0 then the strings are the same so return 1
   return strncmp(str, target, strlen(target)) ? 0 : 1;
@@ -19,6 +22,8 @@ int strmatch(const char *str, const char *target) {
 }
 
 int extmatch(const char *path, const char *ext) {
+
+  assert(path && ext);
 
   int path_len = strlen(path);
   int ext_len = strlen(ext);
@@ -31,6 +36,8 @@ int extmatch(const char *path, const char *ext) {
 }
 
 char *strtrim(char *str, int len) {
+
+  assert(str);
 
   char *start = NULL;
 
@@ -49,6 +56,7 @@ char *strtrim(char *str, int len) {
 }
 
 void strlower(char *str) {
+  assert(str);
   for ( ; *str; ++str) *str = tolower(*str);
 }
 

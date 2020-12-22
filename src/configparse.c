@@ -14,9 +14,11 @@
 #include "common-string.h"
 #include "dict.h"
 #include "mem.h"
-
+#include "assert.h"
 
 static int parse_line(char *line, char **key, char **val) {
+
+    assert(line && key && val);
 
     char *k = NULL, *v = NULL;
     bool is_key = true;
@@ -43,6 +45,8 @@ static int parse_line(char *line, char **key, char **val) {
 }
 
 void load_configs(Dict_T configs, char *path) {
+
+  assert(configs && path);
 
   FILE* fd = fopen(path, "r");
   if (!fd) {

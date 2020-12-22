@@ -12,8 +12,12 @@
 #include <libpq-fe.h>
 #include "dataframe.h"
 #include "mem.h"
+#include "assert.h"
+#include "except.h"
 
 #define D Dataframe_T
+
+const Except_T Dataframe_Index_OOB = { "Dataframe index is out-of-bounds" };
 
 typedef struct Column_T {
   char *header;
@@ -37,11 +41,15 @@ void Dataframe_newcol(D df) {
   Column_T col;
   NEW0(col);
 
+  assert(df);
+
   col->next = df->column;
   df->column = col;
 }
 
 void Dataframe_from_pgres(D df, PGresult *res) {
+
+  assert(df && res);
 
   int nrows = PQntuples(res);
   int ncols = PQnfields(res);
@@ -65,17 +73,24 @@ void Dataframe_from_pgres(D df, PGresult *res) {
 
 int Dataframe_nrows(D df) {
 
+  assert(df);
   return df->nrows;
 
 }
 
 int Dataframe_ncols(D df) {
   
+  assert(df);
   return df->ncols;
 
 }
 
 char *Dataframe_getval(D df, int row, int col) {
+
+  assert(df);
+  
+  if (Dataframe_nrows(df) < row || Dataframe_ncols(df) < col)
+    RAISE(Dataframe_Index_OOB);
 
   Column_T column = df->column;
   while (col--)
@@ -91,6 +106,8 @@ char *Dataframe_getval(D df, int row, int col) {
 
 void Dataframe_free(D *df) {
   Column_T col, next;
+
+  assert(df && *df);
 
   for (col=(*df)->column; col; col=next) {
     next=col->next; 

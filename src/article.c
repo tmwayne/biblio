@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include "article.h"
 #include "mem.h"
+#include "assert.h"
 
 Article_T Article_new() {
 
@@ -20,14 +21,8 @@ Article_T Article_new() {
 }
 
 void Article_free(Article_T *article) {
-
-
   
-  if (article == NULL) {
-    fprintf(stderr, "Can't free NULL pointer\n");
-    exit(EXIT_FAILURE);
-  }
-
+  assert(article && *article);
   FREE((*article)->topic);
   FREE((*article)->title);
   FREE((*article)->author);

@@ -15,6 +15,7 @@
 #include "common-string.h"
 #include "registry.h"
 #include "mem.h"
+#include "assert.h"
 
 #define R Registry_T
 #define E Entry_T
@@ -33,6 +34,8 @@ R Registry_new() {
 void Registry_add(R registry, char *type, char *plugin_path, void *(*init)()) {
   E entry;
   NEW(entry);
+
+  assert(registry && type && init);
   
   entry->type = strdup(type);
   entry->plugin_path = plugin_path ? strdup(plugin_path) : NULL;
@@ -45,6 +48,8 @@ void Registry_add(R registry, char *type, char *plugin_path, void *(*init)()) {
 
 E Registry_get(R registry, char *type) {
 
+  assert(registry && type);
+
   for (E entry=registry->head; entry; entry=entry->link)
     if (strmatch(entry->type, type))
       return entry;
@@ -54,6 +59,8 @@ E Registry_get(R registry, char *type) {
 
 void Registry_free(R *registry) {
   E entry, link;
+
+  assert(registry && *registry);
 
   for (entry=(*registry)->head; entry; entry=link) {
     link = entry->link;
@@ -66,6 +73,8 @@ void Registry_free(R *registry) {
 }
 
 void load_plugins(R registry, char *plugin_dir) {
+
+  assert(registry && plugin_dir);
 
   // Save current working directory
   char cwd[PATH_MAX];
@@ -97,6 +106,8 @@ void load_plugins(R registry, char *plugin_dir) {
 }
 
 void register_plugin(R registry, char *plugin_path) {
+
+  assert(registry && plugin_path);
   
   void *dlhandle;
   char *error;

@@ -14,6 +14,7 @@
 #include "common-string.h"
 #include "frontend-ncurses.h"
 #include "mem.h"
+#include "assert.h"
 
 static char *frontend_type = "ncurses";
 
@@ -44,6 +45,8 @@ static void *window_init() {
 }
 
 void register_interface(Registry_T registry, char *plugin_path) {
+  
+  assert(registry && plugin_path);
 
   Registry_add(registry, frontend_type, plugin_path,
     (void *(*)()) ncurses_frontend_init);
@@ -68,6 +71,8 @@ Frontend_T ncurses_frontend_init() {
 }
 
 static ITEM *get_menu_selection(MENU *menu) {
+
+  assert(menu);
   
   int c;
   ITEM *selection;
@@ -92,6 +97,8 @@ static ITEM *get_menu_selection(MENU *menu) {
 }
 
 void format_menu(MENU *menu, WINDOW *win) {
+
+  assert(menu && win);
   
   int lines, cols;
   getmaxyx(win, lines, cols);
@@ -108,6 +115,8 @@ char *ncurses_pick_topic(Dataframe_T topics, void *args) {
   // Variables
   WINDOW *win = (WINDOW *) args;
   char *topic = NULL; // NULL is default value
+
+  assert(topics && win);
 
   // Create items
   int ntopics = Dataframe_nrows(topics); 
@@ -141,6 +150,8 @@ int ncurses_pick_article(Dataframe_T articles, char *topic, void *args) {
   // Variables
   WINDOW *win = (WINDOW *) args;
   int article_id = 0; // 0 is default value
+
+  assert(articles && topic && win);
 
   wclear(win);
   refresh();
@@ -270,7 +281,10 @@ Article_T ncurses_add_article(void *args) {
 
 void ncurses_print_string(char *str, void *args) {
 
+
   WINDOW *win = (WINDOW *) args;
+  assert(win);
+
   wprintw(win, str);
   refresh();
 
@@ -279,6 +293,7 @@ void ncurses_print_string(char *str, void *args) {
 void ncurses_free(void *args){
 
   WINDOW *win = (WINDOW *) win;
+  assert(win);
   delwin(win);
   endwin();
 
