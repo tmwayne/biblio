@@ -35,6 +35,19 @@ D Dict_new() {
   return dict;
 }
 
+int Dict_size(D dict) {
+
+  Elem_T elem;
+  int size = 0;
+
+  assert(dict);
+
+  for (elem=dict->head; elem; elem=elem->link) size++;
+
+  return size;
+
+}
+
 void Dict_set(D dict, char *key, char *val) {
   Elem_T elem;
   

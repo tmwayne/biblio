@@ -1,11 +1,11 @@
-TESTS = test1
-check_PROGRAMS = test1
-test1_SOURCES = test1.c \
-	minunit.h \
-	except.c \
-	except.h \
-	assert.c \
-	assert.h
-test1_CPPFLAGS = -I$(top_srcdir)/src
-test1_LDADD = 
+TESTS = test_dict
+check_PROGRAMS = test_dict
 
+test_dict_SOURCES = test_dict.c \
+	../src/assert.c \
+	../src/common-string.c \
+	../src/dict.c \
+	../src/except.c \
+	../src/mem.c
+
+AM_CPPFLAGS = -I$(top_srcdir)/include

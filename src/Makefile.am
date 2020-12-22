@@ -11,5 +11,6 @@ biblio_SOURCES = article.c \
 	frontend.c \
 	mem.c \
 	registry.c
-biblio_CPPFLAGS = -I$(top_srcdir)/include
 biblio_LDFLAGS = -ldl -lpq
+
+AM_CPPFLAGS = -I$(top_srcdir)/include
