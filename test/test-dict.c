@@ -32,7 +32,7 @@ static char *test_Dict_new_valid() {
   return 0;
 }
 
-/* void Dict_set(Dict_T dict, char *key, char *val)
+/* void Dict_set(Dict_T dict, char *key, void *val)
  * Dict_set should throw an Exception if any of
  * dict, key, or val are NULL. It should also throw
  * an exception if key is of length 0.
@@ -98,7 +98,7 @@ static char *test_Dict_set_valid() {
   return 0;
 }
   
-/* void Dict_get(Dict_T dict, char *key)
+/* void *Dict_get(Dict_T dict, char *key)
  * Dict_get should throw an Exception if any of
  * dict or key are NULL. It should also throw
  * an exception if key is of length 0.
