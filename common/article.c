@@ -3,11 +3,9 @@
 // article.c
 // -----------------------------------------------------------------------------
 //
-// Article object for Biblio
+// Tyler Wayne © 2020
 //
 
-#include <stdio.h>
-#include <stdlib.h>
 #include "article.h"
 #include "mem.h"
 #include "assert.h"

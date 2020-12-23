@@ -3,7 +3,11 @@
 // article.h
 // -----------------------------------------------------------------------------
 //
-// Article struct
+// Article is a simple structure used to exchange information between the
+// frontend and backends. It's NOT an ADT in order for plugins to access
+// the field information.
+//
+// Tyler Wayne © 2020
 //
 
 #ifndef ARTICLE_INCLUDED

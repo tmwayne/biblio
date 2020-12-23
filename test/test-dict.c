@@ -16,6 +16,21 @@
 
 int tests_run = 0;
 
+/* Dict_T Dict_new()
+ * Dict_new should only throw an exception
+ * if it is unable to allocate memory. It should
+ * return a non-empty pointer.
+ */
+static char *test_Dict_new_valid() {
+  int pass = 0;
+  Dict_T dict;
+  TRY dict = Dict_new();
+  EXCEPT (Mem_Failed) pass = 1;
+  END_TRY;
+  mu_assert("Test Failed: Dict_new returned a NULL pointer", pass || dict != NULL);
+  return 0;
+}
+
 /* void Dict_set(Dict_T dict, char *key, char *val)
  * Dict_set should throw an Exception if any of
  * dict, key, or val are NULL. It should also throw
@@ -185,6 +200,9 @@ static char *test_Dict_free_valid() {
 
 // Run all tests
 static char* run_tests() {
+
+  mu_run_test(test_Dict_new_valid);
+
   mu_run_test(test_Dict_set_NULL_dict);
   mu_run_test(test_Dict_set_NULL_key);
   mu_run_test(test_Dict_set_NULL_val);
