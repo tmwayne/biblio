@@ -24,21 +24,21 @@ static int parse_line(char *line, char **key, char **val) {
     bool is_key = true;
 
     while (*line) {
-      if (*line == '#') {                        // comment variable
-        if (!k && !v) return -1;           // comment at beginning of line
-        else if (k && v) *line = '\0';     // comment after key and val are defined
-        else return 0;                           // invalid co
+      if (*line == '#') {                   // comment variable
+        if (!k && !v) return -1;            // comment at beginning of line
+        else if (k && v) *line = '\0';      // comment after key and val are defined
+        else return 0;                      // invalid co
       }
-      else if (*line == '=') {                   // if at delimiter
-        if (k == NULL) return 0;              // check that key was set
-        else *line = '\0', is_key = false;       // if it was set null-terminator
+      else if (*line == '=') {              // if at delimiter
+        if (k == NULL) return 0;            // check that key was set
+        else *line = '\0', is_key = false;  // if it was set null-terminator
       } else if (is_key && !k) k = line;
       else if (!is_key && !v) v = line;
 
       line++;
     }
 
-    *key = strtrim(k, strlen(k)), *val = strtrim(v, strlen(v));
+    *key = strtrim(k), *val = strtrim(v);
 
     return 1;
 

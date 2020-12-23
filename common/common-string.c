@@ -3,7 +3,7 @@
 // common-string.c
 // -----------------------------------------------------------------------------
 //
-// Common string functions across Biblio project 
+// Tyler Wayne © 2020
 //
 
 #include <limits.h>
@@ -16,8 +16,11 @@ int strmatch(const char *str, const char *target) {
 
   assert(str && target);
 
-  // If strncmp returns 0 then the strings are the same so return 1
-  return strncmp(str, target, strlen(target)) ? 0 : 1;
+  do {
+    if (*str != *target) return 0;
+  } while (*str++ && *target++);
+
+  return 1;
 
 }
 
@@ -28,36 +31,34 @@ int extmatch(const char *path, const char *ext) {
   int path_len = strlen(path);
   int ext_len = strlen(ext);
 
-  if (path && ext && ext_len > path_len)
+  if (ext_len == 0 || ext_len > path_len)
     return 0;
-  else 
-    return strcmp(path + (path_len - ext_len), ext) ? 0 : 1;
+
+  path += (path_len - ext_len);
+
+  return strmatch(path, ext);
   
 }
 
-char *strtrim(char *str, int len) {
+char *strtrim(char *str) {
 
   assert(str);
+  char *start = NULL, *end = str;
 
-  char *start = NULL;
-
-  for (int i=0; str[i] && i<len; i++) {
-    if (!start && !isspace(str[i])) {
-      start = str + i;
-      continue;
-    } else if (start && isspace(str[i])) {
-      str[i] = 0;
-      break;
+  for ( ; *str ; str++) {
+    if (!isspace(*str)) {
+      if (!start) start = str;
+      else end = str+1;
     }
   }
-
-  return start;
+  *end = '\0';
+  return start ? start : end;
 
 }
 
 void strlower(char *str) {
   assert(str);
-  for ( ; *str; ++str) *str = tolower(*str);
+  for ( ; *str; str++) *str = tolower(*str);
 }
 
 char *pathcat(char *path1, char *path2) {
@@ -80,7 +81,8 @@ char *pathcat(char *path1, char *path2) {
   for ( ; path_max && *path2; path_max--, path++, path2++)
     *path = *path2;
 
-  path = 0;
+  // Add null-terminator
+  path = NULL;
 
   return head;
 
