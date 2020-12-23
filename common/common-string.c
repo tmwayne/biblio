@@ -63,6 +63,8 @@ void strlower(char *str) {
 
 char *pathcat(char *path1, char *path2) {
 
+  assert(path1 && path2);
+
   int path_max = PATH_MAX - 1; // Ensure we have room for null-terminator
   char *path = CALLOC(PATH_MAX, sizeof(char));
   char *head = path;
@@ -72,7 +74,9 @@ char *pathcat(char *path1, char *path2) {
     *path = *path1;
 
   // Ensure there is one and only one slash between paths
-  if (*(path1-1) != '/' && *path2 != '/')
+  // But don't add anything if one of the two paths are empty
+  if (*head == '\0' || *path2 == '\0') ;
+  else if (*(path1-1) != '/' && *path2 != '/')
     *path++ = '/';
   else if (*(path1-1) == '/' && *path2 == '/')
     path2++;
@@ -82,7 +86,7 @@ char *pathcat(char *path1, char *path2) {
     *path = *path2;
 
   // Add null-terminator
-  path = NULL;
+  *path = 0;
 
   return head;
 

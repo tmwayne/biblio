@@ -168,11 +168,87 @@ static char *test_strtrim_valid() {
   return 0;
 }
  
-// extern void  strlower(char *);
-// extern char *pathcat(char *path1, char *path2);
+/* void strlower(char *str)
+ * strlower should throw an Exception if str
+ * is NULL. It should lower only letters and
+ * return a string of the same length
+ */
+static char *test_strlower_NULL_str() {
+  int pass = 0;
+  TRY strlower(NULL);
+  EXCEPT (Assert_Failed) pass = 1;
+  END_TRY;
+  mu_assert("Test Failed: strlower with NULL str is not Exception", pass);
+  return 0;
+}
+
+static char *test_strlower_valid() {
+  char *str = strdup("String\n");
+  strlower(str);
+  mu_assert("Test Failed: strlower doesn't return lowercase letters",
+    strmatch(str, "string\n"));
+  return 0;
+}
+
+/* char *pathcat(char *path1, char *path2)
+ * pathcat should throw an Exception if either
+ * path1 or path2 are NULL. It should ensure there
+ * exists one and only one forward-slash between
+ * the two paths after concatenation. If either
+ * path1 or path2 are empty, then no forward-slash
+ * should be added
+ */
+static char *test_pathcat_NULL_path1() {
+  int pass = 0;
+  TRY pathcat(NULL, "path2");
+  EXCEPT (Assert_Failed) pass = 1;
+  END_TRY;
+  mu_assert("Test Failed: pathcat with NULL path1 is not Exception", pass);
+  return 0;
+}
+
+static char *test_pathcat_NULL_path2() {
+  int pass = 0;
+  TRY pathcat("path1", NULL);
+  EXCEPT (Assert_Failed) pass = 1;
+  END_TRY;
+  mu_assert("Test Failed: pathcat with NULL path2 is not Exception", pass);
+  return 0;
+}
+
+static char *test_pathcat_empty_path1() {
+  char *path = pathcat("", "path2");
+  mu_assert("Test Failed: pathcat doesn't return path2 when path1 is empty",
+    strmatch(path, "path2"));
+  free(path);
+  return 0;
+}
+
+static char *test_pathcat_empty_path2() {
+  char *path = pathcat("path1", "");
+  mu_assert("Test Failed: pathcat doesn't return path1 when path2 is empty",
+    strmatch(path, "path1"));
+  free(path);
+  return 0;
+}
+
+static char *test_pathcat_add_slash() {
+  char *path = pathcat("path1", "path2");
+  mu_assert("Test Failed: pathcat doesn't add separating slash when missing",
+    strmatch(path, "path1/path2"));
+  free(path);
+  return 0;
+}
+
+static char *test_pathcat_dedup_slash() {
+  char *path = pathcat("path1/", "/path2");
+  mu_assert("Test Failed: pathcat doesn't deduplicate separating slash",
+    strmatch(path, "path1/path2"));
+  free(path);
+  return 0;
+}
 
 // Run all tests
-
 static char* run_tests() {
 
   mu_run_test(test_strmatch_NULL_str);
@@ -195,6 +271,16 @@ static char* run_tests() {
   mu_run_test(test_strtrim_whitespace_str);
   mu_run_test(test_strtrim_inner_whitespace);
   mu_run_test(test_strtrim_valid);
+
+  mu_run_test(test_strlower_NULL_str);
+  mu_run_test(test_strlower_valid);
+
+  mu_run_test(test_pathcat_NULL_path1);
+  mu_run_test(test_pathcat_NULL_path2);
+  mu_run_test(test_pathcat_empty_path1);
+  mu_run_test(test_pathcat_empty_path2);
+  mu_run_test(test_pathcat_add_slash);
+  mu_run_test(test_pathcat_dedup_slash);
 
   return 0;
 }
