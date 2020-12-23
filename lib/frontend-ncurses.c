@@ -48,7 +48,7 @@ void register_interface(Registry_T registry, char *plugin_path) {
   
   assert(registry && plugin_path);
 
-  Registry_add(registry, frontend_type, plugin_path,
+  Registry_set(registry, frontend_type, plugin_path,
     (void *(*)()) ncurses_frontend_init);
 }  
 

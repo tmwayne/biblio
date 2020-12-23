@@ -65,17 +65,28 @@ int main(int argc, char **argv) {
   if (arguments.frontend)
     Dict_set(configs, "frontend", arguments.frontend);
 
+  Dict_set(configs, "command", arguments.args[0]);
+
   // Initialize backend
+  char *backend_plugin_dir = pathcat(Dict_get(configs, "plugindir"), "backend");
+
   Registry_T backend_registry = Registry_new();
-  load_plugins(backend_registry, pathcat(Dict_get(configs, "plugindir"), "backend"));
+  load_plugins(backend_registry, backend_plugin_dir);
+
   backend = Backend_init(backend_registry, Dict_get(configs, "backend"));
+  Registry_free(&backend_registry);
 
   // Initialize frontend
-  Registry_T frontend_registry = Registry_new();
-  load_plugins(frontend_registry, pathcat(Dict_get(configs, "plugindir"), "frontend"));
-  frontend = Frontend_init(frontend_registry, Dict_get(configs, "frontend"));
+  char *frontend_plugin_dir = pathcat(Dict_get(configs, "plugindir"), "frontend");
 
-  char *command = arguments.args[0];
+  Registry_T frontend_registry = Registry_new();
+  load_plugins(frontend_registry, frontend_plugin_dir);
+
+  frontend = Frontend_init(frontend_registry, Dict_get(configs, "frontend"));
+  Registry_free(&frontend_registry);
+
+  // Run program logic
+  char *command = Dict_get(configs, "command");
 
   if (strmatch(command, "list"))
     list_articles();
@@ -90,6 +101,7 @@ int main(int argc, char **argv) {
     fprintf(stderr, "biblio: '%s' is not a biblio command.\n"
       "See 'biblio --help'\n", command);
 
+  Dict_free(&configs, free);
   Frontend_free(&frontend);
   Backend_free(&backend);
 

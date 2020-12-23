@@ -20,7 +20,7 @@ const Except_T Dict_EmptyKey = { "Dictionary key is empty" };
 
 typedef struct Elem_T {
   char *key;
-  char *val;
+  void *val;
   struct Elem_T *link;
 } *Elem_T;
 
@@ -37,10 +37,10 @@ D Dict_new() {
 
 int Dict_size(D dict) {
 
+  assert(dict);
+
   Elem_T elem;
   int size = 0;
-
-  assert(dict);
 
   for (elem=dict->head; elem; elem=elem->link) size++;
 
@@ -48,12 +48,12 @@ int Dict_size(D dict) {
 
 }
 
-void Dict_set(D dict, char *key, char *val) {
-  Elem_T elem;
-  
-  assert(dict && key && val);
+void Dict_set(D dict, char *key, void *val) {
 
+  assert(dict && key && val);
   if (*key == '\0') RAISE(Dict_EmptyKey);
+
+  Elem_T elem;
 
   for (elem=dict->head; elem; elem=elem->link) {
     if (strmatch(elem->key, key)) {
@@ -69,7 +69,7 @@ void Dict_set(D dict, char *key, char *val) {
   dict->head = elem;
 }
 
-char *Dict_get(D dict, char *key) {
+void *Dict_get(D dict, char *key) {
 
   assert(dict && key);
 
@@ -82,15 +82,17 @@ char *Dict_get(D dict, char *key) {
   return NULL;
 }
 
-void Dict_free(D *dict) {
-  Elem_T elem, link;
+void Dict_free(D *dict, void (*free_val)(void *)) {
 
   assert(dict && *dict);
+
+  Elem_T elem, link;
 
   for (elem=(*dict)->head; elem; elem=link) {
     link = elem->link;
     FREE(elem->key);
-    FREE(elem->val);
+    // FREE(elem->val);
+    free_val(elem->val);
     FREE(elem);
   }
   FREE(*dict);
@@ -99,10 +101,15 @@ void Dict_free(D *dict) {
 void Dict_dump(D dict) {
   assert(dict);
   for (Elem_T elem=dict->head; elem; elem=elem->link)
-    printf("Key: %s, Val: %s\n", elem->key, elem->val);
+    printf("Key: %s, Val: %s\n", elem->key, (char *) elem->val);
 }
 
 #ifdef DICT_DEBUG
+
+void free_val(void *val) {
+  FREE(val);
+}
+
 int main() {
 
   char *key = "this";
@@ -110,13 +117,13 @@ int main() {
   D dict = Dict_new();
   Dict_set(dict, key, "that");
   
-  printf("Value of %s is: %s\n", key, Dict_get(dict, key));
+  printf("Value of %s is: %s\n", key, (char *) Dict_get(dict, key));
 
   Dict_set(dict, "this", "dog");
-  printf("Value of %s is now: %s\n", key, Dict_get(dict, key)); 
+  printf("Value of %s is now: %s\n", key, (char *) Dict_get(dict, key)); 
 
   Dict_dump(dict);
-  Dict_free(&dict);
+  Dict_free(&dict, FREE);
 
 }
 #endif

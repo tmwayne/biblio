@@ -6,7 +6,8 @@
 // Tyler Wayne © 2020
 //
 
-#include <stdio.h>
+#include <stdio.h> // printf
+#include <stdlib.h> // free
 #include "minunit.h"
 #include "dict.h"
 #include "mem.h"
@@ -177,14 +178,14 @@ static char *test_Dict_size_valid() {
   return 0;
 }
 
-/* void Dict_free(Dict_T *dict)
+/* void Dict_free(Dict_T *dict, void (*free_val)(void *))
  * Dict_free should throw an Exception if 
  * dict is NULL. Otherwise it should free the Dict_T
  * that dict is pointing to
  */
 static char *test_Dict_free_NULL_dict() {
   int pass = 0;
-  TRY Dict_free(NULL);
+  TRY Dict_free(NULL, free);
   EXCEPT (Assert_Failed) pass = 1;
   END_TRY;
   mu_assert("Test Failed: Dict_free with empty key is not Exception", pass);
@@ -193,7 +194,7 @@ static char *test_Dict_free_NULL_dict() {
 
 static char *test_Dict_free_valid() {
   Dict_T dict = Dict_new();
-  Dict_free(&dict);
+  Dict_free(&dict, free);
   mu_assert("Test Failed: Dict_free doesn't free the argument", dict == NULL);
   return 0;
 }

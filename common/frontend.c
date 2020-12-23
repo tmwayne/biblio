@@ -43,8 +43,6 @@ Frontend_T Frontend_init(Registry_T registry, char *type) {
   frontend = frontend_init();
   frontend->plugin_handle = dlhandle;
 
-  Registry_free(&registry);
-
   return frontend;
 
 }
