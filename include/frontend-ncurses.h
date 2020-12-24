@@ -13,7 +13,7 @@
 #include "article.h"
 #include "frontend.h"
 
-extern void       register_interface(Registry_T, char *plugin_path);
+extern void       register_interface(Dict_T, char *plugin_path);
 extern Frontend_T ncurses_frontend_init();
 extern char      *ncurses_pick_topic(Dataframe_T topics, void *args);
 extern int        ncurses_pick_article(Dataframe_T articles, char *topic,  void *args);

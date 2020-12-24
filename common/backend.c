@@ -22,7 +22,7 @@ Backend_T Backend_new() {
 
 }
 
-Backend_T Backend_init(Registry_T registry, char *type) {
+Backend_T Backend_init(Dict_T registry, char *type) {
 
   void *dlhandle;
   Backend_T (*backend_init)();
@@ -31,7 +31,7 @@ Backend_T Backend_init(Registry_T registry, char *type) {
   assert(registry && type);
 
   Entry_T entry;
-  if (!(entry = Registry_get(registry, type))) {
+  if (!(entry = Dict_get(registry, type))) {
     fprintf(stderr, "Failed to find backend of type %s\n", type);
     exit(EXIT_FAILURE);
   }

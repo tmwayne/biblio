@@ -70,20 +70,24 @@ int main(int argc, char **argv) {
   // Initialize backend
   char *backend_plugin_dir = pathcat(Dict_get(configs, "plugindir"), "backend");
 
-  Registry_T backend_registry = Registry_new();
+  // Registry_T backend_registry = Registry_new();
+  Dict_T backend_registry = Dict_new();
   load_plugins(backend_registry, backend_plugin_dir);
 
   backend = Backend_init(backend_registry, Dict_get(configs, "backend"));
-  Registry_free(&backend_registry);
+  // Registry_free(&backend_registry);
+  Dict_free(&backend_registry, (void (*)(void *)) Entry_free);
 
   // Initialize frontend
   char *frontend_plugin_dir = pathcat(Dict_get(configs, "plugindir"), "frontend");
 
-  Registry_T frontend_registry = Registry_new();
+  // Registry_T frontend_registry = Registry_new();
+  Dict_T frontend_registry = Dict_new();
   load_plugins(frontend_registry, frontend_plugin_dir);
 
   frontend = Frontend_init(frontend_registry, Dict_get(configs, "frontend"));
-  Registry_free(&frontend_registry);
+  // Registry_free(&frontend_registry);
+  Dict_free(&frontend_registry, (void (*)(void *)) Entry_free);
 
   // Run program logic
   char *command = Dict_get(configs, "command");
@@ -101,7 +105,7 @@ int main(int argc, char **argv) {
     fprintf(stderr, "biblio: '%s' is not a biblio command.\n"
       "See 'biblio --help'\n", command);
 
-  Dict_free(&configs, free);
+  Dict_free(&configs, NULL);
   Frontend_free(&frontend);
   Backend_free(&backend);
 

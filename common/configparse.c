@@ -69,7 +69,7 @@ void load_configs(Dict_T configs, char *path) {
       exit(EXIT_FAILURE);
     } else if (exit_code == 1) {
       strlower(key);
-      Dict_set(configs, key, val);
+      Dict_set(configs, key, strdup(val));
     }
 
     linenum++;

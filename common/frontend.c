@@ -22,7 +22,7 @@ Frontend_T Frontend_new() {
 
 }
 
-Frontend_T Frontend_init(Registry_T registry, char *type) {
+Frontend_T Frontend_init(Dict_T registry, char *type) {
 
   assert(registry && type);
 
@@ -31,7 +31,7 @@ Frontend_T Frontend_init(Registry_T registry, char *type) {
   Frontend_T frontend;
 
   Entry_T entry;
-  if (!(entry = Registry_get(registry, type))) {
+  if (!(entry = Dict_get(registry, type))) {
     fprintf(stderr, "Failed to find frontend of type %s\n", type);
     exit(EXIT_FAILURE);
   }

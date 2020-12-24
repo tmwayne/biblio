@@ -28,7 +28,7 @@ struct B {
 };
 
 extern B    Backend_new();
-extern B    Backend_init(Registry_T, char *type);
+extern B    Backend_init(Dict_T, char *type);
 extern void Backend_free(B *);
 
 #undef B

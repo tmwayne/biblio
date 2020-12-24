@@ -1,5 +1,10 @@
-TESTS = test_article test_dict test_string
-check_PROGRAMS = test_article test_dict test_string
+TESTS = test_article \
+	test_dict \
+	test_string
+
+check_PROGRAMS = test_article \
+	test_dict \
+	test_string
 
 test_article_SOURCES = test-article.c
 test_article_LDADD = ../common/libbibliocommon.la

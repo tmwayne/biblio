@@ -44,12 +44,15 @@ static void *window_init() {
 
 }
 
-void register_interface(Registry_T registry, char *plugin_path) {
+void register_interface(Dict_T registry, char *plugin_path) {
   
   assert(registry && plugin_path);
 
-  Registry_set(registry, frontend_type, plugin_path,
-    (void *(*)()) ncurses_frontend_init);
+  Entry_T entry = Entry_new(plugin_path, (void *(*)()) ncurses_frontend_init);
+  Dict_set(registry, frontend_type, entry);
+
+  // Dict_set(registry, frontend_type, plugin_path,
+    // (void *(*)()) ncurses_frontend_init);
 }  
 
 Frontend_T ncurses_frontend_init() {

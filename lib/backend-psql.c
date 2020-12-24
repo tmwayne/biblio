@@ -21,12 +21,15 @@ static void exit_nicely(PGconn *conn) {
   exit(EXIT_FAILURE);
 }
 
-void register_interface(Registry_T registry, char *plugin_path) {
+void register_interface(Dict_T registry, char *plugin_path) {
 
   assert(registry && plugin_path);
 
-  Registry_set(registry, backend_type, plugin_path,
-    (void *(*)()) psql_backend_init);
+  Entry_T entry = Entry_new(plugin_path, (void *(*)()) psql_backend_init);
+  Dict_set(registry, backend_type, entry);
+
+  // Dict_set(registry, backend_type, plugin_path,
+    // (void *(*)()) psql_backend_init);
 }  
 
 Backend_T psql_backend_init() {

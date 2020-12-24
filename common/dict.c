@@ -57,14 +57,16 @@ void Dict_set(D dict, char *key, void *val) {
 
   for (elem=dict->head; elem; elem=elem->link) {
     if (strmatch(elem->key, key)) {
-      elem->val = strdup(val);
+      // elem->val = strdup(val);
+      elem->val = val;
       return;
     }
   }
 
   NEW(elem);
   elem->key = strdup(key);
-  elem->val = strdup(val);
+  // elem->val = strdup(val);
+  elem->val = val;
   elem->link = dict->head;
   dict->head = elem;
 }
@@ -91,8 +93,7 @@ void Dict_free(D *dict, void (*free_val)(void *)) {
   for (elem=(*dict)->head; elem; elem=link) {
     link = elem->link;
     FREE(elem->key);
-    // FREE(elem->val);
-    free_val(elem->val);
+    if (free_val) free_val(elem->val);
     FREE(elem);
   }
   FREE(*dict);

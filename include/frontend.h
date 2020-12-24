@@ -30,7 +30,7 @@ struct F {
 };
 
 extern F    Frontend_new();
-extern F    Frontend_init(Registry_T, char *type);
+extern F    Frontend_init(Dict_T, char *type);
 extern void Frontend_free(F *);
 
 #undef F

@@ -3,7 +3,7 @@
 // registry.c
 // -----------------------------------------------------------------------------
 //
-// Registry abstract data object to enable plugin architecture for front/backend
+// Tyler Wayne © 2020
 //
 
 #include <stdio.h>
@@ -13,66 +13,31 @@
 #include <unistd.h> // getcwd, chdir
 #include <dlfcn.h>  // dlopen, dlclose
 #include "common-string.h"
+#include "dict.h"
 #include "registry.h"
 #include "mem.h"
 #include "assert.h"
 
-#define R Registry_T
-#define E Entry_T
-
-struct R {
-  E head;
-};
-
-R Registry_new() {
-  R registry;
-  NEW(registry);
-  registry->head = NULL;
-  return registry;
-};
-
-void Registry_add(R registry, char *type, char *plugin_path, void *(*init)()) {
-  E entry;
-  NEW(entry);
-
-  assert(registry && type && init);
+Entry_T Entry_new(char *plugin_path, void *(*init)()) {
   
-  entry->type = strdup(type);
-  entry->plugin_path = plugin_path ? strdup(plugin_path) : NULL;
+  Entry_T entry;
+  NEW(entry);
+  entry->plugin_path = strdup(plugin_path);
   entry->init = init;
 
-  entry->link = registry->head;
-  registry->head = entry;
+  return entry;
+
 }
+
+void Entry_free(Entry_T entry) {
   
-
-E Registry_get(R registry, char *type) {
-
-  assert(registry && type);
-
-  for (E entry=registry->head; entry; entry=entry->link)
-    if (strmatch(entry->type, type))
-      return entry;
-
-  return NULL;
-}
-
-void Registry_free(R *registry) {
-  E entry, link;
-
-  assert(registry && *registry);
-
-  for (entry=(*registry)->head; entry; entry=link) {
-    link = entry->link;
-    FREE(entry->type);
+    assert(entry);
     FREE(entry->plugin_path);
     FREE(entry);
-  }
 
-  FREE(*registry);
 }
 
-void load_plugins(R registry, char *plugin_dir) {
+void load_plugins(Dict_T registry, char *plugin_dir) {
 
   assert(registry && plugin_dir);
 
@@ -105,7 +70,7 @@ void load_plugins(R registry, char *plugin_dir) {
 
 }
 
-void register_plugin(R registry, char *plugin_path) {
+void register_plugin(Dict_T registry, char *plugin_path) {
 
   assert(registry && plugin_path);
   
@@ -120,7 +85,8 @@ void register_plugin(R registry, char *plugin_path) {
 
   dlerror(); // clear any existing error
 
-  void (*register_interface)(R, char *) = dlsym(dlhandle, "register_interface");
+  void (*register_interface)(Dict_T, char *) = dlsym(dlhandle,
+    "register_interface");
 
   if ((error = dlerror()) != NULL) {
     fprintf(stderr, "%s\n", error);

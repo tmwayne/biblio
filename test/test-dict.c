@@ -181,7 +181,10 @@ static char *test_Dict_size_valid() {
 /* void Dict_free(Dict_T *dict, void (*free_val)(void *))
  * Dict_free should throw an Exception if 
  * dict is NULL. Otherwise it should free the Dict_T
- * that dict is pointing to
+ * that dict is pointing to. It will free val using
+ * the function pointer passed to it. If the function
+ * pointer is NULL, then then the val for each element
+ * will not be freed.
  */
 static char *test_Dict_free_NULL_dict() {
   int pass = 0;
@@ -199,7 +202,29 @@ static char *test_Dict_free_valid() {
   return 0;
 }
 
+static char *test_Dict_free_valid_free_val() {
+  char *val = strdup("val");
+  Dict_T dict = Dict_new();
+  Dict_set(dict, "key", val);
+  Dict_free(&dict, free);
+  mu_assert("Test Failed: Dict_free doesn't free val with free_val",
+    strmatch(val, "val") == 0);
+  return 0;
+}
+
+static char *test_Dict_free_valid_NULL_free_val() {
+  char *val = strdup("val");
+  Dict_T dict = Dict_new();
+  Dict_set(dict, "key", val);
+  Dict_free(&dict, NULL);
+  mu_assert("Test Failed: Dict_free doesn't retain val when free_val is NULL",
+    strmatch(val, "val"));
+  return 0;
+}
+  
+
 // Run all tests
+
 static char* run_tests() {
 
   mu_run_test(test_Dict_new_valid);
@@ -223,6 +248,8 @@ static char* run_tests() {
 
   mu_run_test(test_Dict_free_NULL_dict);
   mu_run_test(test_Dict_free_valid);
+  mu_run_test(test_Dict_free_valid_free_val);
+  mu_run_test(test_Dict_free_valid_NULL_free_val);
 
   return 0;
 }
