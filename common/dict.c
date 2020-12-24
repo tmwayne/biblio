@@ -57,7 +57,6 @@ void Dict_set(D dict, char *key, void *val) {
 
   for (elem=dict->head; elem; elem=elem->link) {
     if (strmatch(elem->key, key)) {
-      // elem->val = strdup(val);
       elem->val = val;
       return;
     }
@@ -65,7 +64,6 @@ void Dict_set(D dict, char *key, void *val) {
 
   NEW(elem);
   elem->key = strdup(key);
-  // elem->val = strdup(val);
   elem->val = val;
   elem->link = dict->head;
   dict->head = elem;
@@ -114,17 +112,18 @@ void free_val(void *val) {
 int main() {
 
   char *key = "this";
+  char *val = strdup("this");
 
   D dict = Dict_new();
-  Dict_set(dict, key, "that");
+  Dict_set(dict, key, val);
   
   printf("Value of %s is: %s\n", key, (char *) Dict_get(dict, key));
 
-  Dict_set(dict, "this", "dog");
-  printf("Value of %s is now: %s\n", key, (char *) Dict_get(dict, key)); 
+  // Dict_set(dict, "this", "dog");
+  // printf("Value of %s is now: %s\n", key, (char *) Dict_get(dict, key)); 
 
   Dict_dump(dict);
-  Dict_free(&dict, FREE);
+  Dict_free(&dict, free);
 
 }
 #endif

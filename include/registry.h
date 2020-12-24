@@ -27,6 +27,7 @@ typedef struct E {
 } *E;
 
 extern E      Entry_new(char *plugin_dir, void *(*init)());
+// extern void   Entry_free(E *);
 extern void   Entry_free(E);
 extern void   load_plugins(Dict_T registry, char *plugin_dir);
 extern void   register_plugin(Dict_T registry, char *plugin_path);

@@ -20,6 +20,8 @@
 
 Entry_T Entry_new(char *plugin_path, void *(*init)()) {
   
+  assert(plugin_path && init);
+
   Entry_T entry;
   NEW(entry);
   entry->plugin_path = strdup(plugin_path);
@@ -31,7 +33,9 @@ Entry_T Entry_new(char *plugin_path, void *(*init)()) {
 
 void Entry_free(Entry_T entry) {
   
+    // assert(entry && *entry);
     assert(entry);
+
     FREE(entry->plugin_path);
     FREE(entry);
 
