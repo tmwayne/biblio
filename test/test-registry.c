@@ -69,14 +69,6 @@ static char *test_Entry_free_NULL_entry() {
   return 0;
 }
 
-static char *test_Entry_free_valid() {
-  Entry_T entry = Entry_new("pluginpath", empty_init);
-  Entry_free(entry);
-  mu_assert("Test Failed: Entry_free doesn't result in entry being NULL",
-    entry == NULL);
-  return 0;
-}
-
 static char *test_Entry_free_keep_orig_plugin_path() {
   char *plugin_path = strdup("plugin_path");
   Entry_T entry = Entry_new(plugin_path, empty_init);
@@ -93,7 +85,6 @@ static char* run_tests() {
   mu_run_test(test_Entry_new_valid);
 
   mu_run_test(test_Entry_free_NULL_entry);
-  // mu_run_test(test_Entry_free_valid); // This is a known bug
   mu_run_test(test_Entry_free_keep_orig_plugin_path);
 
   return 0;
