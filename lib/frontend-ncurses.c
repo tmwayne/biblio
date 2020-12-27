@@ -51,8 +51,6 @@ void register_interface(Dict_T registry, char *plugin_path) {
   Entry_T entry = Entry_new(plugin_path, (void *(*)()) ncurses_frontend_init);
   Dict_set(registry, frontend_type, entry);
 
-  // Dict_set(registry, frontend_type, plugin_path,
-    // (void *(*)()) ncurses_frontend_init);
 }  
 
 Frontend_T ncurses_frontend_init() {
@@ -76,7 +74,7 @@ Frontend_T ncurses_frontend_init() {
 
 void ncurses_event_loop(Dict_T commands, void *args) {
 
-  exit_nicely("Interactive mode not currently supported...\n");
+  exit_nicely("Interactive mode for ncurses not currently supported...\n");
 
 }
 
