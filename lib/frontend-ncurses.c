@@ -59,6 +59,7 @@ Frontend_T ncurses_frontend_init() {
 
   Frontend_T ncurses_frontend = Frontend_new();
 
+  ncurses_frontend->event_loop = ncurses_event_loop;
   ncurses_frontend->pick_topic = ncurses_pick_topic;
   ncurses_frontend->pick_article = ncurses_pick_article;
   ncurses_frontend->add_article = ncurses_add_article;
@@ -70,6 +71,12 @@ Frontend_T ncurses_frontend_init() {
   ncurses_frontend->args = win;
 
   return ncurses_frontend;
+
+}
+
+void ncurses_event_loop(Dict_T commands, void *args) {
+
+  exit_nicely("Interactive mode not currently supported...\n");
 
 }
 

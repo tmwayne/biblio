@@ -15,6 +15,7 @@
 
 extern void       register_interface(Dict_T, char *plugin_path);
 extern Frontend_T ncurses_frontend_init();
+extern void       ncurses_event_loop(Dict_T commands, void *args);
 extern char      *ncurses_pick_topic(Dataframe_T topics, void *args);
 extern int        ncurses_pick_article(Dataframe_T articles, char *topic,  void *args);
 extern Article_T  ncurses_add_article(void *args);

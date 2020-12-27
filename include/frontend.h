@@ -20,6 +20,7 @@
 typedef struct F *F;
 
 struct F {
+  void       (*event_loop)(Dict_T commands, void *args);
   char      *(*pick_topic)(Dataframe_T topics, void *args);
   int        (*pick_article)(Dataframe_T articles, char *topic, void *args);
   Article_T  (*add_article)(void *args);

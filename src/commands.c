@@ -6,14 +6,31 @@
 // Tyler Wayne © 2020
 //
 
-#include "backend.h"
-#include "frontend.h"
+#include "commands.h"
+
 #include "article.h"
 #include "dataframe.h"
 #include "mem.h"
 
 static Frontend_T frontend;
 static Backend_T backend;
+
+void set_interfaces(Frontend_T _frontend, Backend_T _backend) {
+
+  frontend = _frontend;
+  backend = _backend;
+
+}
+
+void interactive() {
+
+  Dict_T commands = load_command_functions();
+
+  frontend->event_loop(commands, frontend->args);
+
+  Dict_free(&commands, NULL);
+
+}
 
 void list_articles() {
 
@@ -60,12 +77,10 @@ void export_raw() {
 
 }
 
-Dict_T load_command_functions(Frontend_T _frontend, Backend_T _backend) {
-
-  frontend = _frontend;
-  backend = _backend;
+Dict_T load_command_functions() {
 
   Dict_T commands = Dict_new();
+  Dict_set(commands, "interactive", interactive);
   Dict_set(commands, "list", list_articles);
   Dict_set(commands, "add", add_article);
   Dict_set(commands, "export", export_raw);

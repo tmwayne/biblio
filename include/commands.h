@@ -8,5 +8,10 @@
 //
 
 #include "dict.h"
+#include "frontend.h"
+#include "backend.h"
 
+typedef void (*command_func)();
+
+extern void   set_interfaces(Frontend_T, Backend_T);
 extern Dict_T load_command_functions();

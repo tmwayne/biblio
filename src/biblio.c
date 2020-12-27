@@ -25,8 +25,6 @@
 #define DEFAULT_BACKEND "postgres"
 #define DEFAULT_FRONTEND "console"
 
-typedef void (*command_func)();
-
 void load_defaults(Dict_T configs);
 void load_arguments(Dict_T configs, int argc, char **argv);
 Frontend_T load_frontend(Dict_T configs);
@@ -44,10 +42,11 @@ int main(int argc, char **argv) {
   // Initialize interfaces
   Frontend_T frontend = load_frontend(configs);
   Backend_T backend = load_backend(configs);
+  set_interfaces(frontend, backend);
 
   // Run program logic
   char *command = Dict_get(configs, "command");
-  Dict_T command_functions = load_command_functions(frontend, backend);
+  Dict_T command_functions = load_command_functions();
   void *func = Dict_get(command_functions, command);
 
   if (func) ((command_func) func)();

@@ -6,11 +6,12 @@
 // Console frontend for Biblio
 //
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <readline/readline.h>
+#include <stdio.h>             // printf, sscanf
+#include <stdlib.h>            // EXIT_FAILURE
+#include <string.h>            // strlen
+#include <readline/readline.h> // readline
 #include "frontend-console.h"
+#include "commands.h"          // command_func
 #include "common-string.h"
 #include "mem.h"
 #include "assert.h"
@@ -24,22 +25,35 @@ void register_interface(Dict_T registry, char *plugin_path) {
   Entry_T entry = Entry_new(plugin_path, (void *(*)()) console_frontend_init);
   Dict_set(registry, frontend_type, entry);
 
-  // Dict_set(registry, frontend_type, plugin_path,
-    // (void *(*)()) console_frontend_init);
 }  
 
 Frontend_T console_frontend_init() {
 
- Frontend_T console_frontend = Frontend_new();
+  Frontend_T console_frontend = Frontend_new();
 
- console_frontend->pick_topic = console_pick_topic;
- console_frontend->pick_article = console_pick_article;
- console_frontend->add_article = console_add_article;
- console_frontend->print_string = console_print_string;
- console_frontend->free = console_free;
- console_frontend->args = 0;
+  console_frontend->event_loop = console_event_loop;
+  console_frontend->pick_topic = console_pick_topic;
+  console_frontend->pick_article = console_pick_article;
+  console_frontend->add_article = console_add_article;
+  console_frontend->print_string = console_print_string;
+  console_frontend->free = console_free;
+  console_frontend->args = 0;
 
- return console_frontend;
+  return console_frontend;
+
+}
+
+void console_event_loop(Dict_T commands, void *args) {
+
+  char *buf;
+  while ((buf = readline("What would you like to do? "))) {
+    printf("\n");
+    void *func = Dict_get(commands, buf);
+    if (func) ((command_func) func)();
+    else fprintf(stderr, "Command not supported...\n");
+    FREE(buf);
+    printf("\n");
+  }
 
 }
 
