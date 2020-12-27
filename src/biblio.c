@@ -42,31 +42,24 @@ int main(int argc, char **argv) {
   // Initialize interfaces
   Frontend_T frontend = load_frontend(configs);
   Backend_T backend = load_backend(configs);
-  set_interfaces(frontend, backend);
 
   // Run program logic
   char *command = Dict_get(configs, "command");
 
-  // Dict_T command_functions = load_command_functions();
-  // void *func = Dict_get(command_functions, command);
+  Session_T global_session = Session_new();
+  Session_init(global_session, frontend, backend, NULL);
+  void *func = Dict_get(global_session->commands, command);
 
-  Session_T session = Session_create_global();
-  void *func = Dict_get(session->commands, command);
-
-  if (func) ((command_func) func)(session);
+  if (func) ((command_func) func)(global_session);
   else fprintf(stderr, "biblio: '%s' is not a biblio command.\n"
       "see 'biblio --help'\n", command);
 
-  // if (func) ((command_func) func)(NULL);
-  // else fprintf(stderr, "biblio: '%s' is not a biblio command.\n"
-      // "see 'biblio --help'\n", command);
-
   // Free resources
-  Dict_free(&session->commands, NULL);
-  // Session_free(&session);
+  Dict_free(&global_session->commands, NULL);
+  Session_free(&global_session);
   Dict_free(&configs, NULL);
-  // Frontend_free(&frontend);
-  // Backend_free(&backend);
+  Frontend_free(&frontend);
+  Backend_free(&backend);
 
 }
 

@@ -14,21 +14,19 @@
 #include "backend.h"
 #include "dict.h"
 
-typedef struct Session_T *Session_T;
-
-struct Session_T {
+typedef struct {
   Dict_T commands;
-  void *frontend_args;
-  void *backend_args;
-  void *session_args;
-};
+  Frontend_T frontend;
+  Backend_T backend;
+  void *data;
+} *Session_T;
 
 typedef void (*command_func)(Session_T);
 
-Session_T Session_create_global();
+Session_T Session_new();
+void Session_init(Session_T, Frontend_T, Backend_T, void *data);
 void Session_free(Session_T *);
 
-extern void   set_interfaces(Frontend_T, Backend_T);
 extern Dict_T load_command_functions();
 
 #endif

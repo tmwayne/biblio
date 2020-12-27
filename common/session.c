@@ -11,27 +11,31 @@
 #include "article.h"
 #include "dataframe.h"
 #include "mem.h"
+#include "assert.h"
 
-static Frontend_T frontend;
-static Backend_T backend;
-
-Session_T Session_create_global() {
-
+Session_T Session_new() {
+  
   Session_T session;
   NEW0(session);
-
-  session->commands = load_command_functions();
-  session->frontend_args = frontend->args;
-  session->backend_args = backend->args;
 
   return session;
 
 }
 
-void set_interfaces(Frontend_T _frontend, Backend_T _backend) {
+void Session_init(Session_T session, Frontend_T frontend,
+  Backend_T backend, void *data) {
 
-  frontend = _frontend;
-  backend = _backend;
+  session->commands = load_command_functions();
+  session->frontend = frontend;
+  session->backend = backend;
+  session->data = data;
+
+}
+
+void Session_free(Session_T *session) {
+
+  assert(session && *session);
+  FREE(*session);
 
 }
 
@@ -39,7 +43,7 @@ void interactive(Session_T session) {
 
   Dict_T commands = load_command_functions();
 
-  frontend->interactive(commands, session);
+  session->frontend->interactive(commands, session);
 
   Dict_free(&commands, NULL);
 
@@ -48,20 +52,20 @@ void interactive(Session_T session) {
 void list_articles(Session_T session) {
 
   // Get topics
-  Dataframe_T topics = backend->get_topics(session);
+  Dataframe_T topics = session->backend->get_topics(session);
 
   // Prompt user for topic
-  char *topic = frontend->pick_topic(topics, session);
+  char *topic = session->frontend->pick_topic(topics, session);
 
   // Get articles on topic
-  Dataframe_T articles = backend->get_articles(topic, session);
+  Dataframe_T articles = session->backend->get_articles(topic, session);
 
   // Select article, print source, prompt to mark as read
-  int article_id = frontend->pick_article(articles, topic, session);
+  int article_id = session->frontend->pick_article(articles, topic, session);
 
   if (article_id) {
-    backend->mark_article(article_id, session);
-    frontend->print_string("Marked article as read!\n", session);
+    session->backend->mark_article(article_id, session);
+    session->frontend->print_string("Marked article as read!\n", session);
   }
 
   Dataframe_free(&topics);
@@ -73,12 +77,12 @@ void list_articles(Session_T session) {
 void add_article(Session_T session) {
 
   // Prompt user to enter article details
-  Article_T article = frontend->add_article(session);
+  Article_T article = session->frontend->add_article(session);
 
   // Write article to backend
-  backend->add_article(article, session);
+  session->backend->add_article(article, session);
 
-  frontend->print_string("Added article!\n", session);
+  session->frontend->print_string("Added article!\n", session);
 
   Article_free(&article);
   
@@ -86,7 +90,7 @@ void add_article(Session_T session) {
 
 void export_raw(Session_T session) {
   
-  backend->export_raw(session);
+  session->backend->export_raw(session);
 
 }
 

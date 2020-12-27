@@ -19,11 +19,11 @@ static char *frontend_type = "console";
 
 void       register_interface(Dict_T, char *plugin_path);
 Frontend_T console_frontend_init();
-void       console_interactive(Dict_T commands, void *args);
-char      *console_pick_topic(Dataframe_T topics, void *args);
-int        console_pick_article(Dataframe_T articles, char *topic,  void *args);
-Article_T  console_add_article(void *args);
-void       console_print_string(char *str, void *args);
+void       console_interactive(Dict_T commands, void *session);
+char      *console_pick_topic(Dataframe_T topics, void *session);
+int        console_pick_article(Dataframe_T articles, char *topic,  void *session);
+Article_T  console_add_article(void *session);
+void       console_print_string(char *str, void *session);
 void       console_free();
 
 void register_interface(Dict_T registry, char *plugin_path) {
@@ -51,15 +51,16 @@ Frontend_T console_frontend_init() {
 
 }
 
-void console_interactive(Dict_T commands, void *args) {
+void console_interactive(Dict_T commands, void *session) {
 
-  Session_T session = args;
+  Session_T _session = session;
+  
 
   char *buf;
   while ((buf = readline("What would you like to do? "))) {
     printf("\n");
     void *func = Dict_get(commands, buf);
-    if (func) ((command_func) func)(session);
+    if (func) ((command_func) func)(_session);
     else fprintf(stderr, "Command not supported...\n");
     FREE(buf);
     printf("\n");
@@ -67,7 +68,7 @@ void console_interactive(Dict_T commands, void *args) {
 
 }
 
-char *console_pick_topic(Dataframe_T topics, void *args) {
+char *console_pick_topic(Dataframe_T topics, void *session) {
 
   assert(topics);
 
@@ -99,7 +100,7 @@ char *console_pick_topic(Dataframe_T topics, void *args) {
 
 }
 
-int console_pick_article(Dataframe_T articles, char *topic, void *args) {
+int console_pick_article(Dataframe_T articles, char *topic, void *session) {
 
   assert(articles && topic);
 
@@ -163,7 +164,7 @@ int console_pick_article(Dataframe_T articles, char *topic, void *args) {
 
 }
 
-Article_T console_add_article(void *args) {
+Article_T console_add_article(void *session) {
 
   Article_T article = Article_new();
 
@@ -177,7 +178,7 @@ Article_T console_add_article(void *args) {
 
 }
 
-void console_print_string(char *str, void *args) {
+void console_print_string(char *str, void *session) {
 
   printf(str);
 

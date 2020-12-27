@@ -18,11 +18,11 @@ static char *backend_type = "postgres";
 
 void         register_interface(Dict_T, char *plugin_path);
 Backend_T    psql_backend_init();
-Dataframe_T  psql_get_topics(void *args);
-Dataframe_T  psql_get_articles(char *topic, void *args);
-void         psql_mark_article(int article_id, void *args);
-void         psql_add_article(Article_T article, void *args);
-void         psql_export_raw(void *args);
+Dataframe_T  psql_get_topics(void *session);
+Dataframe_T  psql_get_articles(char *topic, void *session);
+void         psql_mark_article(int article_id, void *session);
+void         psql_add_article(Article_T article, void *session);
+void         psql_export_raw(void *session);
 void         psql_backend_free(void *args);
 
 static void exit_nicely(PGconn *conn) {
@@ -67,8 +67,7 @@ Backend_T psql_backend_init() {
 
 void psql_backend_free(void *args) {
 
-  Session_T session = args;
-  PGconn *conn = session->backend_args;
+  PGconn *conn = args;
   assert(conn);
 
   if (PQstatus(conn) != CONNECTION_OK) {
@@ -80,10 +79,10 @@ void psql_backend_free(void *args) {
 
 }
 
-Dataframe_T psql_get_topics(void *args) {
+Dataframe_T psql_get_topics(void *session) {
 
-  Session_T session = args;
-  PGconn *conn = session->backend_args;
+  Session_T _session = session;
+  PGconn *conn = _session->backend->args;
   assert(conn);
 
   PGresult *res = PQexec(conn,
@@ -101,10 +100,11 @@ Dataframe_T psql_get_topics(void *args) {
 
 }
 
-Dataframe_T psql_get_articles(char *topic, void *args) {
+Dataframe_T psql_get_articles(char *topic, void *session) {
 
-  Session_T session = args;
-  PGconn *conn = session->backend_args;
+  Session_T _session = session;
+  PGconn *conn = _session->backend->args;
+
   assert(topic && conn);
   
   const char *ParamValues[1];
@@ -127,10 +127,11 @@ Dataframe_T psql_get_articles(char *topic, void *args) {
 
 }
 
-void psql_mark_article(int article_id, void *args) {
+void psql_mark_article(int article_id, void *session) {
 
-  Session_T session = args;
-  PGconn *conn = session->backend_args;
+  Session_T _session = session;
+  PGconn *conn = _session->backend->args;
+
   assert(article_id && conn);
 
   const char *ParamValues[1];
@@ -151,10 +152,10 @@ void psql_mark_article(int article_id, void *args) {
 
 }
 
-void psql_add_article(Article_T article, void *args) {
+void psql_add_article(Article_T article, void *session) {
 
-  Session_T session = args;
-  PGconn *conn = session->backend_args;
+  Session_T _session = session;
+  PGconn *conn = _session->backend->args;
   assert(conn);
 
   const char *ParamValues[4];
@@ -176,10 +177,10 @@ void psql_add_article(Article_T article, void *args) {
 
 }
 
-void psql_export_raw(void *args) {
+void psql_export_raw(void *session) {
 
-  Session_T session = args;
-  PGconn *conn = session->backend_args;
+  Session_T _session = session;
+  PGconn *conn = _session->backend->args;
   assert(conn);
 
   char *command = "COPY articles TO STDOUT with (FORMAT CSV, DELIMITER '|', HEADER)";
