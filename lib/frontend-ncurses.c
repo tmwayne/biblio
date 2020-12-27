@@ -26,7 +26,7 @@ static void exit_nicely(const char *msg) {
 
 }
 
-static void *window_init() {
+static WINDOW *window_init() {
 
   initscr();
   
@@ -40,7 +40,7 @@ static void *window_init() {
   keypad(win, TRUE);
   refresh();
 
-  return (void *) win;
+  return win;
 
 }
 
@@ -64,7 +64,7 @@ Frontend_T ncurses_frontend_init() {
   ncurses_frontend->print_string = ncurses_print_string;
   ncurses_frontend->free = ncurses_free;
 
-  void *win = window_init();
+  WINDOW *win = window_init();
 
   ncurses_frontend->args = win;
 
@@ -121,7 +121,7 @@ void format_menu(MENU *menu, WINDOW *win) {
 char *ncurses_pick_topic(Dataframe_T topics, void *args) {
 
   // Variables
-  WINDOW *win = (WINDOW *) args;
+  WINDOW *win = args;
   char *topic = NULL; // NULL is default value
 
   assert(topics && win);
@@ -156,7 +156,7 @@ char *ncurses_pick_topic(Dataframe_T topics, void *args) {
 int ncurses_pick_article(Dataframe_T articles, char *topic, void *args) {
 
   // Variables
-  WINDOW *win = (WINDOW *) args;
+  WINDOW *win = args;
   int article_id = 0; // 0 is default value
 
   assert(articles && topic && win);
@@ -259,7 +259,7 @@ int ncurses_pick_article(Dataframe_T articles, char *topic, void *args) {
 
 Article_T ncurses_add_article(void *args) {
 
-  // WINDOW *win = (WINDOW *) args;
+  // WINDOW *win = args;
   Article_T article = Article_new();
   char buf[256];
 
@@ -290,7 +290,7 @@ Article_T ncurses_add_article(void *args) {
 void ncurses_print_string(char *str, void *args) {
 
 
-  WINDOW *win = (WINDOW *) args;
+  WINDOW *win = args;
   // assert(win);
 
   wprintw(win, str);
@@ -300,7 +300,7 @@ void ncurses_print_string(char *str, void *args) {
 
 void ncurses_free(void *args){
 
-  WINDOW *win = (WINDOW *) args;
+  WINDOW *win = args;
   assert(win);
 
   delwin(win);
