@@ -10,13 +10,21 @@
 #include <stdlib.h>            // EXIT_FAILURE
 #include <string.h>            // strlen
 #include <readline/readline.h> // readline
-#include "frontend-console.h"
-#include "commands.h"          // command_func
+#include "session.h"           // command_func
 #include "common-string.h"
 #include "mem.h"
 #include "assert.h"
 
 static char *frontend_type = "console";
+
+void       register_interface(Dict_T, char *plugin_path);
+Frontend_T console_frontend_init();
+void       console_interactive(Dict_T commands, void *args);
+char      *console_pick_topic(Dataframe_T topics, void *args);
+int        console_pick_article(Dataframe_T articles, char *topic,  void *args);
+Article_T  console_add_article(void *args);
+void       console_print_string(char *str, void *args);
+void       console_free();
 
 void register_interface(Dict_T registry, char *plugin_path) {
 
@@ -31,7 +39,7 @@ Frontend_T console_frontend_init() {
 
   Frontend_T console_frontend = Frontend_new();
 
-  console_frontend->event_loop = console_event_loop;
+  console_frontend->interactive = console_interactive;
   console_frontend->pick_topic = console_pick_topic;
   console_frontend->pick_article = console_pick_article;
   console_frontend->add_article = console_add_article;
@@ -43,13 +51,15 @@ Frontend_T console_frontend_init() {
 
 }
 
-void console_event_loop(Dict_T commands, void *args) {
+void console_interactive(Dict_T commands, void *args) {
+
+  Session_T session = args;
 
   char *buf;
   while ((buf = readline("What would you like to do? "))) {
     printf("\n");
     void *func = Dict_get(commands, buf);
-    if (func) ((command_func) func)();
+    if (func) ((command_func) func)(session);
     else fprintf(stderr, "Command not supported...\n");
     FREE(buf);
     printf("\n");

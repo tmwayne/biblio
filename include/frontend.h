@@ -1,6 +1,6 @@
 //
 // -----------------------------------------------------------------------------
-// frontend-console.h
+// frontend.h
 // -----------------------------------------------------------------------------
 //
 // Console based front-end for Biblio
@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include "registry.h"
 #include "dataframe.h"
 #include "article.h"
@@ -20,12 +21,12 @@
 typedef struct F *F;
 
 struct F {
-  void       (*event_loop)(Dict_T commands, void *args);
-  char      *(*pick_topic)(Dataframe_T topics, void *args);
-  int        (*pick_article)(Dataframe_T articles, char *topic, void *args);
-  Article_T  (*add_article)(void *args);
-  void       (*print_string)(char *string, void *args);
-  void       (*free)(void *args);
+  void       (*interactive)(Dict_T commands, void *session);
+  char      *(*pick_topic)(Dataframe_T topics, void *session);
+  int        (*pick_article)(Dataframe_T articles, char *topic, void *session);
+  Article_T  (*add_article)(void *session);
+  void       (*print_string)(char *string, void *session);
+  void       (*free)(void *session);
   void        *plugin_handle;
   void        *args;
 };

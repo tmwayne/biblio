@@ -17,12 +17,12 @@
 typedef struct B *B;
 
 struct B {
-  Dataframe_T (*get_topics)(void *args);
-  Dataframe_T (*get_articles)(char *topic, void *args);
-  void (*mark_article)(int article_id, void *args);
-  void (*add_article)(Article_T article, void *args);
-  void (*export_raw)(void *args);
-  void (*free)(void *args);
+  Dataframe_T (*get_topics)(void *session);
+  Dataframe_T (*get_articles)(char *topic, void *session);
+  void (*mark_article)(int article_id, void *session);
+  void (*add_article)(Article_T article, void *session);
+  void (*export_raw)(void *session);
+  void (*free)(void *session);
   void *plugin_handle;
   void *args;
 };

@@ -12,11 +12,20 @@
 #include <menu.h>
 #include <readline/readline.h>
 #include "common-string.h"
-#include "frontend-ncurses.h"
+#include "session.h"
 #include "mem.h"
 #include "assert.h"
 
 static char *frontend_type = "ncurses";
+
+void       register_interface(Dict_T, char *plugin_path);
+Frontend_T ncurses_frontend_init();
+void       ncurses_interactive(Dict_T commands, Session_T);
+char      *ncurses_pick_topic(Dataframe_T topics, Session_T);
+int        ncurses_pick_article(Dataframe_T articles, char *topic,  Session_T);
+Article_T  ncurses_add_article(Session_T);
+void       ncurses_print_string(char *str, Session_T);
+void       ncurses_free();
 
 static void exit_nicely(const char *msg) {
 
@@ -57,7 +66,7 @@ Frontend_T ncurses_frontend_init() {
 
   Frontend_T ncurses_frontend = Frontend_new();
 
-  ncurses_frontend->event_loop = ncurses_event_loop;
+  ncurses_frontend->interactive = ncurses_interactive;
   ncurses_frontend->pick_topic = ncurses_pick_topic;
   ncurses_frontend->pick_article = ncurses_pick_article;
   ncurses_frontend->add_article = ncurses_add_article;
@@ -72,7 +81,7 @@ Frontend_T ncurses_frontend_init() {
 
 }
 
-void ncurses_event_loop(Dict_T commands, void *args) {
+void ncurses_interactive(Dict_T commands, Session_T session) {
 
   exit_nicely("Interactive mode for ncurses not currently supported...\n");
 
@@ -118,10 +127,10 @@ void format_menu(MENU *menu, WINDOW *win) {
 
 }
 
-char *ncurses_pick_topic(Dataframe_T topics, void *args) {
+char *ncurses_pick_topic(Dataframe_T topics, Session_T session) {
 
   // Variables
-  WINDOW *win = args;
+  WINDOW *win = session->frontend_args;
   char *topic = NULL; // NULL is default value
 
   assert(topics && win);
@@ -153,10 +162,10 @@ char *ncurses_pick_topic(Dataframe_T topics, void *args) {
 
 }
 
-int ncurses_pick_article(Dataframe_T articles, char *topic, void *args) {
+int ncurses_pick_article(Dataframe_T articles, char *topic, Session_T session) {
 
   // Variables
-  WINDOW *win = args;
+  WINDOW *win = session->frontend_args;
   int article_id = 0; // 0 is default value
 
   assert(articles && topic && win);
@@ -257,9 +266,9 @@ int ncurses_pick_article(Dataframe_T articles, char *topic, void *args) {
 
 }
 
-Article_T ncurses_add_article(void *args) {
+Article_T ncurses_add_article(Session_T session) {
 
-  // WINDOW *win = args;
+  // WINDOW *win = session->frontend_args;
   Article_T article = Article_new();
   char buf[256];
 
@@ -287,10 +296,10 @@ Article_T ncurses_add_article(void *args) {
 
 }
 
-void ncurses_print_string(char *str, void *args) {
+void ncurses_print_string(char *str, Session_T session) {
 
 
-  WINDOW *win = args;
+  WINDOW *win = session->frontend_args;
   // assert(win);
 
   wprintw(win, str);
@@ -298,9 +307,9 @@ void ncurses_print_string(char *str, void *args) {
 
 }
 
-void ncurses_free(void *args){
+void ncurses_free(Session_T session){
 
-  WINDOW *win = args;
+  WINDOW *win = session->frontend_args;
   assert(win);
 
   delwin(win);

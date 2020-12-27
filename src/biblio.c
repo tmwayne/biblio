@@ -18,7 +18,7 @@
 #include "backend.h"
 #include "frontend.h"
 #include "dict.h"
-#include "commands.h"      // load_commands
+#include "session.h"      // load_commands
 
 #define DEFAULT_USER_RC_PATH "/home/tyler/.config/bibliorc"
 #define DEFAULT_PLUGIN_DIR "/home/tyler/.local/lib/biblio/plugin/"
@@ -46,18 +46,27 @@ int main(int argc, char **argv) {
 
   // Run program logic
   char *command = Dict_get(configs, "command");
-  Dict_T command_functions = load_command_functions();
-  void *func = Dict_get(command_functions, command);
 
-  if (func) ((command_func) func)();
+  // Dict_T command_functions = load_command_functions();
+  // void *func = Dict_get(command_functions, command);
+
+  Session_T session = Session_create_global();
+  void *func = Dict_get(session->commands, command);
+
+  if (func) ((command_func) func)(session);
   else fprintf(stderr, "biblio: '%s' is not a biblio command.\n"
-      "See 'biblio --help'\n", command);
+      "see 'biblio --help'\n", command);
+
+  // if (func) ((command_func) func)(NULL);
+  // else fprintf(stderr, "biblio: '%s' is not a biblio command.\n"
+      // "see 'biblio --help'\n", command);
 
   // Free resources
-  Dict_free(&command_functions, NULL);
+  Dict_free(&session->commands, NULL);
+  // Session_free(&session);
   Dict_free(&configs, NULL);
-  Frontend_free(&frontend);
-  Backend_free(&backend);
+  // Frontend_free(&frontend);
+  // Backend_free(&backend);
 
 }
 

@@ -9,6 +9,7 @@ libbibliocommon_la_SOURCES = article.c \
 	except.c \
 	frontend.c \
 	mem.c \
-	registry.c
+	registry.c \
+	session.c
 libbibliocommon_la_CPPFLAGS = -I$(top_srcdir)/include
 libbibliocommon_la_LDFLAGS = -ldl -lpq
