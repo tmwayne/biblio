@@ -25,7 +25,7 @@
 #define DEFAULT_BACKEND "postgres"
 #define DEFAULT_FRONTEND "console"
 
-typedef void (*command_func)(Frontend_T, Backend_T);
+typedef void (*command_func)();
 
 void load_defaults(Dict_T configs);
 void load_arguments(Dict_T configs, int argc, char **argv);
@@ -47,10 +47,10 @@ int main(int argc, char **argv) {
 
   // Run program logic
   char *command = Dict_get(configs, "command");
-  Dict_T command_functions = load_command_functions();
+  Dict_T command_functions = load_command_functions(frontend, backend);
   void *func = Dict_get(command_functions, command);
 
-  if (func) ((command_func) func)(frontend, backend);
+  if (func) ((command_func) func)();
   else fprintf(stderr, "biblio: '%s' is not a biblio command.\n"
       "See 'biblio --help'\n", command);
 

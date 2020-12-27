@@ -12,7 +12,10 @@
 #include "dataframe.h"
 #include "mem.h"
 
-void list_articles(Frontend_T frontend, Backend_T backend) {
+static Frontend_T frontend;
+static Backend_T backend;
+
+void list_articles() {
 
   // Get topics
   Dataframe_T topics = backend->get_topics(backend->args);
@@ -37,7 +40,7 @@ void list_articles(Frontend_T frontend, Backend_T backend) {
 
 }
 
-void add_article(Frontend_T frontend, Backend_T backend) {
+void add_article() {
 
   // Prompt user to enter article details
   Article_T article = frontend->add_article(frontend->args);
@@ -51,13 +54,16 @@ void add_article(Frontend_T frontend, Backend_T backend) {
   
 }
 
-void export_raw(Frontend_T frontend, Backend_T backend) {
+void export_raw() {
   
   backend->export_raw(backend->args);
 
 }
 
-Dict_T load_command_functions() {
+Dict_T load_command_functions(Frontend_T _frontend, Backend_T _backend) {
+
+  frontend = _frontend;
+  backend = _backend;
 
   Dict_T commands = Dict_new();
   Dict_set(commands, "list", list_articles);
@@ -66,4 +72,3 @@ Dict_T load_command_functions() {
   return commands;
 
 }
-  
