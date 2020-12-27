@@ -27,27 +27,51 @@
 
 typedef void (*command_func)(Frontend_T, Backend_T);
 
+void load_defaults(Dict_T configs);
+void load_arguments(Dict_T configs, int argc, char **argv);
+Frontend_T load_frontend(Dict_T configs);
+Backend_T load_backend(Dict_T configs);
+
 int main(int argc, char **argv) {
 
-  /*
-   * Order of configuration precedent
-   * 1. Run control files under /etc
-   * 2. System-set environment variables
-   * 3. Run-control files (dotfiles) in the user's home directory
-   * 4. User-set environment variables
-   * 5. Switches and arguments passed to the program
-   */
+  // Load configurations
   Dict_T configs = Dict_new();
+
+  load_defaults(configs);
+  load_configs(configs, DEFAULT_USER_RC_PATH);
+  load_arguments(configs, argc, argv);
+
+  // Initialize interfaces
+  Frontend_T frontend = load_frontend(configs);
+  Backend_T backend = load_backend(configs);
+
+  // Run program logic
+  char *command = Dict_get(configs, "command");
+  Dict_T command_functions = load_command_functions();
+  void *func = Dict_get(command_functions, command);
+
+  if (func) ((command_func) func)(frontend, backend);
+  else fprintf(stderr, "biblio: '%s' is not a biblio command.\n"
+      "See 'biblio --help'\n", command);
+
+  // Free resources
+  Dict_free(&command_functions, NULL);
+  Dict_free(&configs, NULL);
+  Frontend_free(&frontend);
+  Backend_free(&backend);
+
+}
+
+void load_defaults(Dict_T configs) {
+
   Dict_set(configs, "plugindir", DEFAULT_PLUGIN_DIR);
   Dict_set(configs, "backend", DEFAULT_BACKEND);
   Dict_set(configs, "frontend", DEFAULT_FRONTEND);
 
-  // 3. Run-control files (dotfiles) in the user's home directory
-  load_configs(configs, DEFAULT_USER_RC_PATH);
+}
 
-  // 4. User-set environment variables
+void load_arguments(Dict_T configs, int argc, char **argv) {
 
-  // 5. Switches and arguments passed to the program
   struct arguments arguments;
   memset(&arguments, 0, sizeof(arguments)); // Set all fields to NULL
 
@@ -64,16 +88,10 @@ int main(int argc, char **argv) {
 
   Dict_set(configs, "command", arguments.args[0]);
 
-  // Initialize backend
-  char *backend_plugin_dir = pathcat(Dict_get(configs, "plugindir"), "backend");
+}
 
-  Dict_T backend_registry = Dict_new();
-  load_plugins(backend_registry, backend_plugin_dir);
+Frontend_T load_frontend(Dict_T configs) {
 
-  Backend_T backend = Backend_init(backend_registry, Dict_get(configs, "backend"));
-  Dict_free(&backend_registry, (void (*)(void *)) Entry_free);
-
-  // Initialize frontend
   char *frontend_plugin_dir = pathcat(Dict_get(configs, "plugindir"), "frontend");
 
   Dict_T frontend_registry = Dict_new();
@@ -82,19 +100,20 @@ int main(int argc, char **argv) {
   Frontend_T frontend = Frontend_init(frontend_registry, Dict_get(configs, "frontend"));
   Dict_free(&frontend_registry, (void (*)(void *)) Entry_free);
 
-  // Run program logic
-  char *command = Dict_get(configs, "command");
-  Dict_T command_functions = load_command_functions();
-  void *func = Dict_get(command_functions, command);
+  return frontend;
 
-  if (func) ((command_func) func)(frontend, backend);
-  else fprintf(stderr, "biblio: '%s' is not a biblio command.\n"
-      "See 'biblio --help'\n", command);
+}
 
-  // Free resources
-  Dict_free(&command_functions, NULL);
-  Dict_free(&configs, NULL);
-  Frontend_free(&frontend);
-  Backend_free(&backend);
+Backend_T load_backend(Dict_T configs) {
+
+  char *backend_plugin_dir = pathcat(Dict_get(configs, "plugindir"), "backend");
+
+  Dict_T backend_registry = Dict_new();
+  load_plugins(backend_registry, backend_plugin_dir);
+
+  Backend_T backend = Backend_init(backend_registry, Dict_get(configs, "backend"));
+  Dict_free(&backend_registry, (void (*)(void *)) Entry_free);
+
+  return backend;
 
 }
