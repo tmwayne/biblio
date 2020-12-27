@@ -14,55 +14,11 @@
 #include "mem.h"
 #include "assert.h"
 
-static char *backend_type = "postgres";
-
-void         register_interface(Dict_T, char *plugin_path);
-Backend_T    psql_backend_init();
-Dataframe_T  psql_get_topics(void *session);
-Dataframe_T  psql_get_articles(char *topic, void *session);
-void         psql_mark_article(int article_id, void *session);
-void         psql_add_article(Article_T article, void *session);
-void         psql_export_raw(void *session);
-void         psql_backend_free(void *args);
+#define BACKEND_TYPE "postgres"
 
 static void exit_nicely(PGconn *conn) {
   PQfinish(conn);
   exit(EXIT_FAILURE);
-}
-
-void register_interface(Dict_T registry, char *plugin_path) {
-
-  assert(registry && plugin_path);
-
-  Entry_T entry = Entry_new(plugin_path, (void *(*)()) psql_backend_init);
-  Dict_set(registry, backend_type, entry);
-
-  // Dict_set(registry, backend_type, plugin_path,
-    // (void *(*)()) psql_backend_init);
-}  
-
-Backend_T psql_backend_init() {
-
-  Backend_T psql_backend = Backend_new();
-
-  psql_backend->get_topics = psql_get_topics;
-  psql_backend->get_articles = psql_get_articles;
-  psql_backend->mark_article = psql_mark_article;
-  psql_backend->add_article = psql_add_article;
-  psql_backend->export_raw = psql_export_raw;
-  psql_backend->free = psql_backend_free;
-
-  PGconn *conn = PQconnectdb("host=localhost dbname=postgres "
-    "user=postgres password=example");
-  if (PQstatus(conn) != CONNECTION_OK) {
-    fprintf(stderr, "Unable to establish PostgreSQL connection\n");
-    exit(EXIT_FAILURE);
-  }
-
-  psql_backend->args = conn;
-
-  return psql_backend;
-
 }
 
 void psql_backend_free(void *args) {
@@ -206,6 +162,41 @@ void psql_export_raw(void *session) {
 
   PQclear(res);
 }
+
+Backend_T psql_backend_init() {
+
+  Backend_T psql_backend = Backend_new();
+
+  psql_backend->get_topics = psql_get_topics;
+  psql_backend->get_articles = psql_get_articles;
+  psql_backend->mark_article = psql_mark_article;
+  psql_backend->add_article = psql_add_article;
+  psql_backend->export_raw = psql_export_raw;
+  psql_backend->free = psql_backend_free;
+
+  PGconn *conn = PQconnectdb("host=localhost dbname=postgres "
+    "user=postgres password=example");
+  if (PQstatus(conn) != CONNECTION_OK) {
+    fprintf(stderr, "Unable to establish PostgreSQL connection\n");
+    exit(EXIT_FAILURE);
+  }
+
+  psql_backend->args = conn;
+
+  return psql_backend;
+
+}
+
+void register_interface(Dict_T registry, char *plugin_path) {
+
+  assert(registry && plugin_path);
+
+  Entry_T entry = Entry_new(plugin_path, (void *(*)()) psql_backend_init);
+  Dict_set(registry, BACKEND_TYPE, entry);
+
+  // Dict_set(registry, backend_type, plugin_path,
+    // (void *(*)()) psql_backend_init);
+}  
 
 #ifdef BACKEND_PSQL_DEBUG
 int main() {

@@ -1,6 +1,6 @@
 //
 // -----------------------------------------------------------------------------
-// frontend-console.c
+// frontend-server.c
 // -----------------------------------------------------------------------------
 //
 // Console frontend for Biblio
@@ -15,12 +15,13 @@
 #include "mem.h"
 #include "assert.h"
 
-#define FRONTEND_TYPE "console"
+#define FRONTEND_TYPE "server"
+#define PORT 6543
+#define MAXBUF 256
 
-void console_interactive(Dict_T commands, void *session) {
+void server_interactive(Dict_T commands, void *session) {
 
   Session_T _session = session;
-  
 
   char *buf;
   while ((buf = readline("What would you like to do? "))) {
@@ -34,7 +35,7 @@ void console_interactive(Dict_T commands, void *session) {
 
 }
 
-char *console_pick_topic(Dataframe_T topics, void *session) {
+char *server_pick_topic(Dataframe_T topics, void *session) {
 
   assert(topics);
 
@@ -66,7 +67,7 @@ char *console_pick_topic(Dataframe_T topics, void *session) {
 
 }
 
-int console_pick_article(Dataframe_T articles, char *topic, void *session) {
+int server_pick_article(Dataframe_T articles, char *topic, void *session) {
 
   assert(articles && topic);
 
@@ -130,7 +131,7 @@ int console_pick_article(Dataframe_T articles, char *topic, void *session) {
 
 }
 
-Article_T console_add_article(void *session) {
+Article_T server_add_article(void *session) {
 
   Article_T article = Article_new();
 
@@ -144,27 +145,27 @@ Article_T console_add_article(void *session) {
 
 }
 
-void console_print_string(char *str, void *session) {
+void server_print_string(char *str, void *session) {
 
   printf(str);
 
 }
 
-void console_free(){};
+void server_free(){};
 
-Frontend_T console_frontend_init() {
+Frontend_T server_frontend_init() {
 
-  Frontend_T console_frontend = Frontend_new();
+  Frontend_T server_frontend = Frontend_new();
 
-  console_frontend->interactive = console_interactive;
-  console_frontend->pick_topic = console_pick_topic;
-  console_frontend->pick_article = console_pick_article;
-  console_frontend->add_article = console_add_article;
-  console_frontend->print_string = console_print_string;
-  console_frontend->free = console_free;
-  console_frontend->args = 0;
+  server_frontend->interactive = server_interactive;
+  server_frontend->pick_topic = server_pick_topic;
+  server_frontend->pick_article = server_pick_article;
+  server_frontend->add_article = server_add_article;
+  server_frontend->print_string = server_print_string;
+  server_frontend->free = server_free;
+  server_frontend->args = 0;
 
-  return console_frontend;
+  return server_frontend;
 
 }
 
@@ -172,7 +173,7 @@ void register_interface(Dict_T registry, char *plugin_path) {
 
   assert(registry && plugin_path);
 
-  Entry_T entry = Entry_new(plugin_path, (void *(*)()) console_frontend_init);
+  Entry_T entry = Entry_new(plugin_path, (void *(*)()) server_frontend_init);
   Dict_set(registry, FRONTEND_TYPE, entry);
 
 }  

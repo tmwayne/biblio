@@ -16,16 +16,7 @@
 #include "mem.h"
 #include "assert.h"
 
-static char *frontend_type = "ncurses";
-
-void       register_interface(Dict_T, char *plugin_path);
-Frontend_T ncurses_frontend_init();
-void       ncurses_interactive(Dict_T commands, void *session);
-char      *ncurses_pick_topic(Dataframe_T topics, void *session);
-int        ncurses_pick_article(Dataframe_T articles, char *topic, void *session);
-Article_T  ncurses_add_article(void *session);
-void       ncurses_print_string(char *str, void *session);
-void       ncurses_free(void *args);
+#define FRONTEND_TYPE "ncurses"
 
 static void exit_nicely(const char *msg) {
 
@@ -50,34 +41,6 @@ static WINDOW *window_init() {
   refresh();
 
   return win;
-
-}
-
-void register_interface(Dict_T registry, char *plugin_path) {
-  
-  assert(registry && plugin_path);
-
-  Entry_T entry = Entry_new(plugin_path, (void *(*)()) ncurses_frontend_init);
-  Dict_set(registry, frontend_type, entry);
-
-}  
-
-Frontend_T ncurses_frontend_init() {
-
-  Frontend_T ncurses_frontend = Frontend_new();
-
-  ncurses_frontend->interactive = ncurses_interactive;
-  ncurses_frontend->pick_topic = ncurses_pick_topic;
-  ncurses_frontend->pick_article = ncurses_pick_article;
-  ncurses_frontend->add_article = ncurses_add_article;
-  ncurses_frontend->print_string = ncurses_print_string;
-  ncurses_frontend->free = ncurses_free;
-
-  WINDOW *win = window_init();
-
-  ncurses_frontend->args = win;
-
-  return ncurses_frontend;
 
 }
 
@@ -320,6 +283,33 @@ void ncurses_free(void *args){
 
 }
 
+Frontend_T ncurses_frontend_init() {
+
+  Frontend_T ncurses_frontend = Frontend_new();
+
+  ncurses_frontend->interactive = ncurses_interactive;
+  ncurses_frontend->pick_topic = ncurses_pick_topic;
+  ncurses_frontend->pick_article = ncurses_pick_article;
+  ncurses_frontend->add_article = ncurses_add_article;
+  ncurses_frontend->print_string = ncurses_print_string;
+  ncurses_frontend->free = ncurses_free;
+
+  WINDOW *win = window_init();
+
+  ncurses_frontend->args = win;
+
+  return ncurses_frontend;
+
+}
+
+void register_interface(Dict_T registry, char *plugin_path) {
+  
+  assert(registry && plugin_path);
+
+  Entry_T entry = Entry_new(plugin_path, (void *(*)()) ncurses_frontend_init);
+  Dict_set(registry, FRONTEND_TYPE, entry);
+
+}  
 
 #ifdef FRONTEND_CONSOLE_DEBUG
 int main() {
