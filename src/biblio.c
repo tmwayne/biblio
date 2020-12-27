@@ -5,30 +5,27 @@
 //
 // Manage library of articles stored on backend
 //
+// Tyler Wayne © 2020
+//
 
-#include <stdio.h>
+#include <stdio.h>         // fprintf
 #include <stdlib.h>
-#include "common-string.h"
+
 #include "argparse.h"
-#include "configparse.h"
-#include "registry.h"
+#include "configparse.h"   // load_configs
+#include "common-string.h" // pathcat
+#include "registry.h"      // load_plugins
 #include "backend.h"
 #include "frontend.h"
-#include "dataframe.h"
 #include "dict.h"
-#include "mem.h"
+#include "commands.h"      // load_commands
 
 #define DEFAULT_USER_RC_PATH "/home/tyler/.config/bibliorc"
 #define DEFAULT_PLUGIN_DIR "/home/tyler/.local/lib/biblio/plugin/"
 #define DEFAULT_BACKEND "postgres"
 #define DEFAULT_FRONTEND "console"
 
-void list_articles();
-void add_article();
-void export_raw();
-
-static Backend_T backend;
-static Frontend_T frontend;
+typedef void (*command_func)(Frontend_T, Backend_T);
 
 int main(int argc, char **argv) {
 
@@ -70,88 +67,34 @@ int main(int argc, char **argv) {
   // Initialize backend
   char *backend_plugin_dir = pathcat(Dict_get(configs, "plugindir"), "backend");
 
-  // Registry_T backend_registry = Registry_new();
   Dict_T backend_registry = Dict_new();
   load_plugins(backend_registry, backend_plugin_dir);
 
-  backend = Backend_init(backend_registry, Dict_get(configs, "backend"));
-  // Registry_free(&backend_registry);
+  Backend_T backend = Backend_init(backend_registry, Dict_get(configs, "backend"));
   Dict_free(&backend_registry, (void (*)(void *)) Entry_free);
 
   // Initialize frontend
   char *frontend_plugin_dir = pathcat(Dict_get(configs, "plugindir"), "frontend");
 
-  // Registry_T frontend_registry = Registry_new();
   Dict_T frontend_registry = Dict_new();
   load_plugins(frontend_registry, frontend_plugin_dir);
 
-  frontend = Frontend_init(frontend_registry, Dict_get(configs, "frontend"));
-  // Registry_free(&frontend_registry);
+  Frontend_T frontend = Frontend_init(frontend_registry, Dict_get(configs, "frontend"));
   Dict_free(&frontend_registry, (void (*)(void *)) Entry_free);
 
   // Run program logic
   char *command = Dict_get(configs, "command");
+  Dict_T command_functions = load_command_functions();
+  void *func = Dict_get(command_functions, command);
 
-  if (strmatch(command, "list"))
-    list_articles();
-
-  else if (strmatch(command, "add"))
-    add_article();
-
-  else if (strmatch(command, "export"))
-    export_raw();
-
-  else
-    fprintf(stderr, "biblio: '%s' is not a biblio command.\n"
+  if (func) ((command_func) func)(frontend, backend);
+  else fprintf(stderr, "biblio: '%s' is not a biblio command.\n"
       "See 'biblio --help'\n", command);
 
+  // Free resources
+  Dict_free(&command_functions, NULL);
   Dict_free(&configs, NULL);
   Frontend_free(&frontend);
   Backend_free(&backend);
-
-}
-
-void list_articles() {
-
-  // Get topics
-  Dataframe_T topics = backend->get_topics(backend->args);
-
-  // Prompt user for topic
-  char *topic = frontend->pick_topic(topics, frontend->args);
-
-  // Get articles on topic
-  Dataframe_T articles = backend->get_articles(topic, backend->args);
-
-  // Select article, print source, prompt to mark as read
-  int article_id = frontend->pick_article(articles, topic, frontend->args);
-
-  if (article_id) {
-    backend->mark_article(article_id, backend->args);
-    frontend->print_string("Marked article as read!\n", frontend->args);
-  }
-
-  Dataframe_free(&topics);
-  Dataframe_free(&articles);
-  FREE(topic);
-
-}
-
-void add_article() {
-
-  // Prompt user to enter article details
-  Article_T article = frontend->add_article(frontend->args);
-
-  // Write article to backend
-  backend->add_article(article, backend->args);
-
-  frontend->print_string("Added article!\n", frontend->args);
-
-  Article_free(&article);
-  
-}
-
-void export_raw() {
-  
-  backend->export_raw(backend->args);
 
 }
