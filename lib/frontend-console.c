@@ -17,15 +17,14 @@
 
 #define FRONTEND_TYPE "console"
 
-void console_interactive(Dict_T commands, void *session) {
+void console_interactive(void *session) {
 
   Session_T _session = session;
-  
 
   char *buf;
   while ((buf = readline("What would you like to do? "))) {
     printf("\n");
-    void *func = Dict_get(commands, buf);
+    void *func = Dict_get(_session->commands, buf);
     if (func) ((command_func) func)(_session);
     else fprintf(stderr, "Command not supported...\n");
     FREE(buf);

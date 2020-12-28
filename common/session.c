@@ -32,6 +32,16 @@ void Session_init(Session_T session, Frontend_T frontend,
 
 }
 
+Session_T Session_newuser(Session_T global_session, void *data) {
+
+  Session_T user_session = Session_new();
+  Session_init(user_session, global_session->frontend,
+    global_session->backend, data);
+
+  return user_session;
+
+}
+
 void Session_free(Session_T *session) {
 
   assert(session && *session);
@@ -41,11 +51,7 @@ void Session_free(Session_T *session) {
 
 void interactive(Session_T session) {
 
-  Dict_T commands = load_command_functions();
-
-  session->frontend->interactive(commands, session);
-
-  Dict_free(&commands, NULL);
+  session->frontend->interactive(session);
 
 }
 

@@ -44,7 +44,7 @@ static WINDOW *window_init() {
 
 }
 
-void ncurses_interactive(Dict_T commands, void *args) {
+void ncurses_interactive(void *args) {
 
   exit_nicely("Interactive mode for ncurses not currently supported...\n");
 

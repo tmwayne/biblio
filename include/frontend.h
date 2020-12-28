@@ -21,7 +21,7 @@
 typedef struct F *F;
 
 struct F {
-  void       (*interactive)(Dict_T commands, void *session);
+  void       (*interactive)(void *session);
   char      *(*pick_topic)(Dataframe_T topics, void *session);
   int        (*pick_article)(Dataframe_T articles, char *topic, void *session);
   Article_T  (*add_article)(void *session);

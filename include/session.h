@@ -25,6 +25,7 @@ typedef void (*command_func)(Session_T);
 
 Session_T Session_new();
 void Session_init(Session_T, Frontend_T, Backend_T, void *data);
+Session_T Session_newuser(Session_T global_session, void *data);
 void Session_free(Session_T *);
 
 extern Dict_T load_command_functions();
